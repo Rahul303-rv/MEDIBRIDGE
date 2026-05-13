@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& \"c:\\\\Local Disk-D\\\\MediBridge\\\\backend\\\\.venv\\\\Scripts\\\\pip.exe\" install python-bidi --prefer-binary 2>&1)",
+      "PowerShell(& \"c:\\\\Local Disk-D\\\\MediBridge\\\\backend\\\\.venv\\\\Scripts\\\\pip.exe\" install django djangorestframework djangorestframework-simplejwt django-cors-headers Pillow xhtml2pdf qrcode python-decouple drf-spectacular PyMySQL pytest pytest-django factory-boy 2>&1)",
+      "PowerShell(New-Item -ItemType File -Force \"c:\\\\Local Disk-D\\\\MediBridge\\\\backend\\\\apps\\\\notifications\\\\__init__.py\")",
+      "PowerShell(New-Item -ItemType File -Force \"c:\\\\Local Disk-D\\\\MediBridge\\\\backend\\\\apps\\\\patients\\\\__init__.py\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\Local Disk-D\\\\MediBridge\\\\backend\\\\templates\\\\emails\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\Local Disk-D\\\\MediBridge\\\\backend\\\\templates\\\\pdf\")",
+      "Read(//c/Users/Admin/AppData/Local/Programs//**)",
+      "Bash(ls /c/Python*)",
+      "Read(//c/Users/Admin/.local/**)",
+      "Read(//c/Users/Admin/**)",
+      "Bash('/c/Local Disk-D/MediBridge/backend/.venv/Scripts/python.exe' --version)",
+      "Bash('/c/Local Disk-D/MediBridge/backend/.venv/Scripts/python.exe' manage.py makemigrations consultations)",
+      "Bash('/c/Local Disk-D/MediBridge/backend/.venv/Scripts/python.exe' manage.py migrate)",
+      "Bash(mkdir -p \"/c/Local Disk-D/MediBridge/frontend/app/patient/appointments/[id]\")",
+      "Bash(mkdir -p \"/c/Local Disk-D/MediBridge/frontend/app/doctor/appointments/[id]\")"
+    ]
+  }
+}

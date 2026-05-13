@@ -1,0 +1,27 @@
+Got it. This will be the build playbook — phase by phase, with a mandatory test gate before each next phase. Writing it now.Verified thirteen project phases plus overview section presentVerified thirteen project phases plus overview section presentAll 13 phases present (Phase 0 through Phase 12). Presenting all three files together:Presented 3 filesPresented 3 filesimplementation.md is the build playbook — 13 phases (0 through 12), each with a strict test gate before the next can begin.
+Structure of every phase:
+
+Goal in one sentence and an effort estimate
+Scope (what's in, what's deliberately out)
+Backend deliverables and Frontend deliverables as concrete bullet lists
+Sample Claude prompt — copy-paste this verbatim into a fresh VS Code Claude session to start that phase
+Manual test script — numbered steps you click through yourself
+Automated tests required — what pytest / Vitest tests must exist
+Exit checklist — every box must be ticked before moving on
+Common pitfalls — the specific traps for that phase
+
+The discipline this enforces:
+
+One phase per Claude session — fresh context each time, three docs always attached
+No phase advances until the manual script passes AND automated tests pass AND the exit checklist is fully ticked
+Commit and git tag phase-N-complete at every gate, so you can roll back if something downstream surfaces an issue
+A TODO.md for anything you notice mid-phase that doesn't belong in the current phase — keeps scope from leaking
+
+Total realistic effort: 8-11 weeks for a solo developer with Claude assistance. The table at the top of implementation.md shows cumulative ranges so you can give the client a real estimate instead of a hopeful one. Phase 10 (surgery booking) is the biggest at 5-7 days; budget extra time there and don't be discouraged.
+Two appendices:
+
+Claude prompting tips per phase — what works well with the VS Code extension
+When you hit a wall — the specific debugging traps for this exact stack (CORS, JWT cookies, MySQL utf8mb4, xhtml2pdf blank pages)
+
+Plus a 10-minute demo script for the client in section 16 — practice it twice before the meeting, don't deviate, and be honest about dummy payments and external meeting links. Demos go badly when scope expectations weren't clear.
+Start with Phase 0. Get both servers talking through /api/v1/health. Tag phase-0-complete. Only then move on. Good luck.
