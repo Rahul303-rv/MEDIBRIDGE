@@ -2,12 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { SurgeryPackage, DoctorAppointment } from "@/types/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 interface SurgeryRecommendation {
   id: number;
@@ -25,18 +22,30 @@ interface SurgeryRecommendation {
   booking_status: string | null;
 }
 
-const BOOKING_STATUS_COLORS: Record<string, string> = {
-  info_pending:    "bg-amber-100 text-amber-700",
-  payment_pending: "bg-blue-100 text-blue-700",
-  confirmed:       "bg-emerald-100 text-emerald-700",
-  completed:       "bg-teal-100 text-teal-700",
+const BOOKING_STATUS: Record<string, { badge: string; label: string }> = {
+  info_pending:    { badge: "bg-amber-100 text-amber-700",    label: "Info Pending" },
+  payment_pending: { badge: "bg-blue-100 text-blue-700",      label: "Payment Pending" },
+  confirmed:       { badge: "bg-emerald-100 text-emerald-700", label: "Confirmed ✓" },
+  completed:       { badge: "bg-teal-100 text-teal-700",      label: "Surgery Completed ✓" },
 };
-const BOOKING_STATUS_LABEL: Record<string, string> = {
-  info_pending: "Booking: Info Pending",
-  payment_pending: "Booking: Payment Pending",
-  confirmed: "Booking Confirmed ✓",
-  completed: "Surgery Completed ✓",
-};
+
+function RecommendationSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl border border-zinc-200 p-5 animate-pulse space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-2 flex-1">
+          <div className="h-4 bg-zinc-100 rounded w-48" />
+          <div className="h-3 bg-zinc-100 rounded w-32" />
+          <div className="h-3 bg-zinc-100 rounded w-20" />
+        </div>
+        <div className="space-y-2 items-end flex flex-col">
+          <div className="h-4 bg-zinc-100 rounded w-28" />
+          <div className="h-5 bg-zinc-100 rounded-full w-24" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function DoctorSurgeryRecommendationsPage() {
   const searchParams = useSearchParams();
@@ -92,103 +101,178 @@ export default function DoctorSurgeryRecommendationsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
-      <div className="max-w-2xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Surgery Recommendations</h1>
-            <p className="text-sm text-zinc-500 mt-0.5">Recommend surgery packages to your patients.</p>
-          </div>
-          <Link href="/doctor" className="text-sm text-zinc-500 hover:underline">← Dashboard</Link>
+    <div className="p-8 space-y-6 max-w-3xl">
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold text-zinc-900">Surgery Recommendations</h1>
+          <p className="text-sm text-zinc-500 mt-0.5">Recommend surgery packages to your patients</p>
         </div>
+        <button
+          onClick={() => setShowForm((v) => !v)}
+          className={`h-9 px-4 rounded-xl text-sm font-semibold transition-colors ${
+            showForm
+              ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+              : "bg-teal-600 text-white hover:bg-teal-700"
+          }`}
+        >
+          {showForm ? "Cancel" : "+ New Recommendation"}
+        </button>
+      </div>
 
-        <Button onClick={() => setShowForm((v) => !v)} className="bg-teal-600 hover:bg-teal-700 text-white">
-          {showForm ? "Cancel" : "New Recommendation"}
-        </Button>
+      {/* New recommendation form */}
+      {showForm && (
+        <div className="bg-white rounded-2xl border border-teal-200 overflow-hidden">
+          <div className="px-5 py-4 bg-teal-50 border-b border-teal-100">
+            <p className="font-bold text-teal-800 text-sm">Send a Surgery Recommendation</p>
+            <p className="text-xs text-teal-600 mt-0.5">The patient will receive this recommendation in their portal</p>
+          </div>
+          <form onSubmit={submit} className="p-5 space-y-4">
+            <div>
+              <label className="text-xs font-semibold text-zinc-600 mb-1.5 block">
+                Select completed appointment (patient)
+              </label>
+              <select
+                value={apptId}
+                onChange={(e) => setApptId(e.target.value)}
+                className="flex h-9 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm outline-none focus:border-teal-400 transition-colors"
+              >
+                <option value="">Choose appointment…</option>
+                {appointments.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.patient_name} — {new Date(a.scheduled_start).toLocaleDateString("en-US", {
+                      month: "short", day: "numeric", year: "numeric",
+                    })}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-zinc-600 mb-1.5 block">Surgery package</label>
+              <select
+                value={packageId}
+                onChange={(e) => setPackageId(e.target.value)}
+                className="flex h-9 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm outline-none focus:border-teal-400 transition-colors"
+              >
+                <option value="">Choose package…</option>
+                {packages.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} — {p.hospital_name} (${p.price_usd})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-zinc-600 mb-1.5 block">
+                Clinical notes <span className="text-zinc-400 font-normal">(optional)</span>
+              </label>
+              <textarea
+                rows={3}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Why you're recommending this procedure…"
+                className="flex w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none focus:border-teal-400 transition-colors resize-none"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="h-10 px-6 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors disabled:opacity-60"
+            >
+              {submitting ? "Sending…" : "Send Recommendation"}
+            </button>
+          </form>
+        </div>
+      )}
 
-        {showForm && (
-          <Card className="border border-teal-200 shadow-sm bg-teal-50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-teal-800">Send a Surgery Recommendation</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={submit} className="space-y-4">
-                <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Select completed appointment (patient)</label>
-                  <select value={apptId} onChange={(e) => setApptId(e.target.value)}
-                    className="flex h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring">
-                    <option value="">Choose appointment…</option>
-                    {appointments.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.patient_name} — {new Date(a.scheduled_start).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Surgery package</label>
-                  <select value={packageId} onChange={(e) => setPackageId(e.target.value)}
-                    className="flex h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring">
-                    <option value="">Choose package…</option>
-                    {packages.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} — {p.hospital_name} (${p.price_usd})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Clinical notes (optional)</label>
-                  <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Why you're recommending this procedure…"
-                    className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring resize-none" />
-                </div>
-                <Button type="submit" disabled={submitting} className="bg-teal-600 hover:bg-teal-700 text-white text-sm">
-                  {submitting ? "Sending…" : "Send Recommendation"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        )}
-
-        {loading ? (
-          <p className="text-sm text-zinc-400">Loading…</p>
-        ) : recommendations.length === 0 ? (
-          <p className="text-sm text-zinc-500">No recommendations sent yet.</p>
-        ) : (
-          <div className="space-y-3">
-            {recommendations.map((r) => (
-              <Card key={r.id} className={`shadow-sm ${r.booking_id ? "border border-emerald-200 bg-emerald-50" : "border border-zinc-200"}`}>
-                <CardContent className="pt-4 space-y-2">
+      {/* Recommendations list */}
+      {loading ? (
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => <RecommendationSkeleton key={i} />)}
+        </div>
+      ) : recommendations.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-zinc-200 p-14 text-center">
+          <p className="text-5xl mb-4">✂️</p>
+          <p className="font-bold text-zinc-700 text-lg">No recommendations yet</p>
+          <p className="text-zinc-400 text-sm mt-2 max-w-xs mx-auto">
+            After completing a consultation, you can recommend a surgery package to your patient.
+          </p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="mt-5 h-10 px-6 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors"
+          >
+            Create Recommendation
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {recommendations.map((r) => {
+            const bookingStyle = r.booking_status ? BOOKING_STATUS[r.booking_status] : null;
+            return (
+              <div
+                key={r.id}
+                className={`bg-white rounded-2xl border overflow-hidden transition-all ${
+                  r.booking_id ? "border-emerald-200" : "border-zinc-200"
+                }`}
+              >
+                {r.booking_id && (
+                  <div className="h-1 bg-gradient-to-r from-emerald-400 to-teal-400" />
+                )}
+                <div className="p-5 space-y-3">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-semibold text-zinc-900 text-sm">{r.package_name}</p>
-                      <p className="text-xs text-zinc-500">{r.hospital_name} · {r.surgery_type}</p>
-                      <p className="text-xs font-medium text-teal-700 mt-0.5">${r.price_usd}</p>
+                    {/* Package info */}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-lg shrink-0">
+                          ✂️
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-zinc-900 text-sm">{r.package_name}</p>
+                          <p className="text-xs text-zinc-400 mt-0.5">
+                            {r.hospital_name} · <span className="capitalize">{r.surgery_type.replace(/_/g, " ")}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-base font-extrabold text-teal-600 mt-2">${Number(r.price_usd).toLocaleString()} USD</p>
                     </div>
-                    <div className="text-right shrink-0 space-y-1">
-                      <p className="text-xs font-medium text-zinc-700">{r.patient_name}</p>
-                      <p className="text-xs text-zinc-400">{r.patient_email}</p>
-                      {r.booking_id && r.booking_status && (
-                        <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium ${BOOKING_STATUS_COLORS[r.booking_status] ?? "bg-zinc-100 text-zinc-500"}`}>
-                          {BOOKING_STATUS_LABEL[r.booking_status] ?? r.booking_status}
+
+                    {/* Patient + booking status */}
+                    <div className="flex flex-col items-end gap-2 shrink-0">
+                      <div className="text-right">
+                        <p className="text-xs font-semibold text-zinc-700">{r.patient_name}</p>
+                        <p className="text-xs text-zinc-400">{r.patient_email}</p>
+                      </div>
+                      {bookingStyle && (
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${bookingStyle.badge}`}>
+                          {bookingStyle.label}
                         </span>
                       )}
                     </div>
                   </div>
-                  {r.notes && <p className="text-xs text-zinc-500 pt-1 border-t border-zinc-100">{r.notes}</p>}
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-zinc-300">{new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+
+                  {r.notes && (
+                    <div className="bg-zinc-50 rounded-xl px-3 py-2.5 border border-zinc-100">
+                      <p className="text-xs text-zinc-500 leading-relaxed">{r.notes}</p>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-1 border-t border-zinc-50">
+                    <p className="text-xs text-zinc-300">
+                      {new Date(r.created_at).toLocaleDateString("en-US", {
+                        month: "short", day: "numeric", year: "numeric",
+                      })}
+                    </p>
                     {r.booking_id && (
-                      <span className="text-xs text-emerald-600 font-medium">Patient has booked this surgery</span>
+                      <p className="text-xs text-emerald-600 font-semibold">Patient booked this surgery ✓</p>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-    </main>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }

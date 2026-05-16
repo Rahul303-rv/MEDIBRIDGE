@@ -23,11 +23,51 @@ interface AdminUser {
 const ROLE_TABS = ["all", "patient", "doctor", "admin"] as const;
 type RoleTab = (typeof ROLE_TABS)[number];
 
-const ROLE_BADGE: Record<string, string> = {
+const ROLE_STYLE: Record<string, string> = {
   admin:   "bg-purple-100 text-purple-700",
   doctor:  "bg-teal-100 text-teal-700",
-  patient: "bg-zinc-100 text-zinc-600",
+  patient: "bg-blue-100 text-blue-700",
 };
+
+const AVATAR_STYLE: Record<string, string> = {
+  admin:   "bg-purple-100 text-purple-700",
+  doctor:  "bg-teal-100 text-teal-700",
+  patient: "bg-blue-100 text-blue-700",
+};
+
+function UserAvatar({ name, role }: { name: string; role: string }) {
+  const initials = name && name !== "—"
+    ? name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    : name.slice(0, 2).toUpperCase() || "?";
+  return (
+    <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${AVATAR_STYLE[role] ?? "bg-zinc-100 text-zinc-600"}`}>
+      {initials}
+    </div>
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          className={`flex items-center gap-4 px-6 py-4 animate-pulse ${i !== 0 ? "border-t border-zinc-100" : ""}`}
+        >
+          <div className="w-9 h-9 rounded-lg bg-zinc-100 shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3 bg-zinc-100 rounded w-32" />
+            <div className="h-2.5 bg-zinc-100 rounded w-48" />
+          </div>
+          <div className="h-5 w-16 bg-zinc-100 rounded-full" />
+          <div className="h-2.5 w-24 bg-zinc-100 rounded" />
+          <div className="h-2.5 w-20 bg-zinc-100 rounded" />
+          <div className="h-2.5 w-10 bg-zinc-100 rounded" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -37,6 +77,7 @@ export default function AdminUsersPage() {
   const [query, setQuery] = useState("");
 
   function load(role: RoleTab, q: string) {
+    setLoading(true);
     const params = new URLSearchParams();
     if (role !== "all") params.set("role", role);
     if (q) params.set("search", q);
@@ -48,122 +89,141 @@ export default function AdminUsersPage() {
 
   useEffect(() => { load(activeTab, query); }, [activeTab, query]);
 
-  function handleSearch() {
-    setLoading(true);
-    setQuery(search);
-  }
+  function handleSearch() { setQuery(search); }
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="p-8 space-y-6 max-w-6xl">
 
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Users</h1>
-            <p className="text-sm text-zinc-500 mt-0.5">All patients, doctors, and admins.</p>
-          </div>
-          <Link href="/admin" className="text-sm text-zinc-500 hover:underline">← Admin</Link>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold text-zinc-900">Users</h1>
+          <p className="text-sm text-zinc-500 mt-0.5">All patients, doctors, and admins</p>
         </div>
+        {!loading && (
+          <span className="text-sm font-medium text-zinc-400">
+            {users.length} user{users.length !== 1 ? "s" : ""}
+          </span>
+        )}
+      </div>
 
-        {/* Search bar */}
-        <div className="flex gap-2">
+      {/* Search bar */}
+      <div className="flex gap-2">
+        <div className="relative flex-1 max-w-sm">
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
           <input
             type="search"
             placeholder="Search by email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
-            className="flex-1 h-9 rounded-lg border border-input bg-white px-3 text-sm outline-none focus-visible:border-ring"
+            className="w-full h-10 rounded-xl border border-zinc-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-teal-400 transition-colors"
           />
+        </div>
+        <button
+          onClick={handleSearch}
+          className="h-10 px-5 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors"
+        >
+          Search
+        </button>
+      </div>
+
+      {/* Role tabs */}
+      <div className="flex gap-1 p-1 bg-zinc-100 rounded-xl w-fit">
+        {ROLE_TABS.map((tab) => (
           <button
-            onClick={handleSearch}
-            className="px-4 h-9 rounded-lg bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 transition-colors"
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-5 py-1.5 rounded-lg text-sm font-semibold transition-all capitalize ${
+              activeTab === tab
+                ? "bg-white text-zinc-900 shadow-sm"
+                : "text-zinc-500 hover:text-zinc-700"
+            }`}
           >
-            Search
+            {tab}
           </button>
-        </div>
+        ))}
+      </div>
 
-        {/* Role tabs */}
-        <div className="flex gap-1 border-b border-zinc-200">
-          {ROLE_TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => { setLoading(true); setActiveTab(tab); }}
-              className={`px-4 py-2 text-sm font-medium capitalize transition-colors ${
-                activeTab === tab
-                  ? "border-b-2 border-teal-600 text-teal-700"
-                  : "text-zinc-500 hover:text-zinc-700"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+      {/* Table */}
+      {loading ? (
+        <TableSkeleton />
+      ) : users.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-zinc-200 p-12 text-center">
+          <p className="text-zinc-500 text-sm">No users found.</p>
         </div>
-
-        {loading ? (
-          <p className="text-sm text-zinc-400">Loading…</p>
-        ) : users.length === 0 ? (
-          <p className="text-sm text-zinc-500">No users found.</p>
-        ) : (
-          <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
-            <table className="w-full text-sm">
-              <thead className="bg-zinc-50 border-b border-zinc-200">
-                <tr>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wide">User</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wide">Role</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wide">Status</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wide">Joined</th>
-                  <th className="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100">
-                {users.map((u) => {
-                  const name = [u.first_name, u.last_name].filter(Boolean).join(" ") || "—";
-                  return (
-                    <tr key={u.id} className="hover:bg-zinc-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-zinc-900">{name}</p>
-                        <p className="text-xs text-zinc-400">{u.email}</p>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_BADGE[u.role] ?? "bg-zinc-100 text-zinc-500"}`}>
-                          {u.role || "—"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 space-y-0.5">
-                        <p className={`text-xs font-medium ${u.is_email_verified ? "text-emerald-600" : "text-amber-600"}`}>
-                          {u.is_email_verified ? "Email verified" : "Email unverified"}
-                        </p>
+      ) : (
+        <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-zinc-100 bg-zinc-50/80">
+                <th className="text-left px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">User</th>
+                <th className="text-left px-4 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">Role</th>
+                <th className="text-left px-4 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">Status</th>
+                <th className="text-left px-4 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">Joined</th>
+                <th className="px-4 py-4" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {users.map((u) => {
+                const name = [u.first_name, u.last_name].filter(Boolean).join(" ") || "—";
+                return (
+                  <tr key={u.id} className="hover:bg-zinc-50/60 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <UserAvatar name={name} role={u.role} />
+                        <div>
+                          <p className="font-semibold text-zinc-900 text-sm">{name}</p>
+                          <p className="text-xs text-zinc-400 mt-0.5">{u.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold capitalize ${ROLE_STYLE[u.role] ?? "bg-zinc-100 text-zinc-500"}`}>
+                        {u.role || "—"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="space-y-0.5">
+                        <div className={`flex items-center gap-1 text-xs font-medium ${u.is_email_verified ? "text-emerald-600" : "text-amber-600"}`}>
+                          {u.is_email_verified ? "✓ Verified" : "! Unverified"}
+                        </div>
                         {u.role === "doctor" && (
-                          <p className={`text-xs ${u.is_verified ? "text-emerald-600" : "text-amber-600"}`}>
-                            {u.is_verified ? "Doctor approved" : "Approval pending"}
-                          </p>
+                          <div className={`text-xs ${u.is_verified ? "text-emerald-600" : "text-amber-600"}`}>
+                            {u.is_verified ? "✓ Approved" : "⏳ Pending"}
+                          </div>
                         )}
                         {!u.is_active && (
-                          <p className="text-xs text-rose-600">Inactive</p>
+                          <p className="text-xs text-rose-500 font-medium">Inactive</p>
                         )}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-zinc-400">
-                        {new Date(u.date_joined).toLocaleDateString("en-GB", {
-                          day: "numeric", month: "short", year: "numeric",
-                        })}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <Link
-                          href={`/admin/users/${u.id}`}
-                          className="text-xs font-medium text-teal-700 hover:underline whitespace-nowrap"
-                        >
-                          Edit →
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </main>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-xs text-zinc-400 whitespace-nowrap">
+                      {new Date(u.date_joined).toLocaleDateString("en-GB", {
+                        day: "numeric", month: "short", year: "numeric",
+                      })}
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <Link
+                        href={`/admin/users/${u.id}`}
+                        className="text-xs font-semibold text-teal-600 hover:text-teal-700 transition-colors"
+                      >
+                        Edit →
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }

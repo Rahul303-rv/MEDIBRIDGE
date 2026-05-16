@@ -79,7 +79,7 @@ class PublicDoctorSerializer(serializers.ModelSerializer):
             "id", "first_name", "last_name", "slug", "bio",
             "years_of_experience", "consultation_fee_usd", "consultation_duration_min",
             "languages", "hospital_affiliation", "timezone",
-            "specializations", "education", "profile_image", "is_available",
+            "specializations", "education", "profile_image", "is_available", "is_verified",
         ]
 
 

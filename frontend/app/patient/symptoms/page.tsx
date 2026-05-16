@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,6 +30,18 @@ type FormValues = z.infer<typeof schema>;
 export default function SymptomIntakePage() {
   const router = useRouter();
   const [doctors, setDoctors] = useState<DoctorProfile[]>([]);
+  const [doctorDropdownOpen, setDoctorDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDoctorDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -93,7 +105,7 @@ export default function SymptomIntakePage() {
           <Link href="/patient" className="text-sm text-teal-600 hover:underline">← Dashboard</Link>
         </div>
 
-        <Card className="border border-zinc-200 shadow-sm">
+        <Card className="border border-zinc-200 shadow-sm overflow-visible">
           <CardHeader>
             <CardTitle className="text-base">Symptom Information</CardTitle>
           </CardHeader>
@@ -171,26 +183,106 @@ export default function SymptomIntakePage() {
                   </FormItem>
                 )} />
 
-                <FormField control={form.control} name="preferred_doctor" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Preferred doctor <span className="text-zinc-400 font-normal">(optional)</span></FormLabel>
-                    <FormControl>
-                      <select
-                        {...field}
-                        className="flex h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring"
-                      >
-                        <option value="">No preference — let the team decide</option>
-                        {doctors.map((d) => (
-                          <option key={d.id} value={d.id}>
-                            Dr. {d.first_name} {d.last_name}
-                            {d.specializations.length > 0 && ` — ${d.specializations.map((s) => s.name).join(", ")}`}
-                          </option>
-                        ))}
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                <FormField control={form.control} name="preferred_doctor" render={({ field }) => {
+                  const selected = doctors.find((d) => String(d.id) === field.value);
+                  return (
+                    <FormItem>
+                      <FormLabel>Preferred doctor <span className="text-zinc-400 font-normal">(optional)</span></FormLabel>
+                      <div ref={dropdownRef} className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setDoctorDropdownOpen((o) => !o)}
+                          className="flex w-full min-h-12 rounded-lg border border-input bg-background px-4 py-2.5 text-sm outline-none focus-visible:border-ring items-center justify-between text-left"
+                        >
+                          {selected ? (
+                            <div className="flex items-center justify-between w-full">
+                              <div>
+                                <span className="font-medium text-zinc-900">
+                                  Dr. {selected.first_name} {selected.last_name}
+                                </span>
+                                <span className="text-zinc-500 ml-1">
+                                  — {selected.specializations.map((s) => s.name).join(", ")}
+                                </span>
+                                {selected.education.length > 0 && (
+                                  <span className="text-zinc-400 ml-1 text-xs">
+                                    · {selected.education[selected.education.length - 1].degree}
+                                  </span>
+                                )}
+                              </div>
+                              {selected.consultation_fee_usd && (
+                                <span className="text-teal-600 font-semibold ml-3 shrink-0">
+                                  ${Number(selected.consultation_fee_usd).toLocaleString()}/consult
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-zinc-500">No preference — let the team decide</span>
+                          )}
+                          <svg className="ml-2 h-4 w-4 shrink-0 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+
+                        {doctorDropdownOpen && (
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl max-h-96 overflow-y-auto">
+                            {/* No preference option */}
+                            <div
+                              className="px-4 py-3 text-sm text-zinc-500 cursor-pointer hover:bg-zinc-50 border-b border-zinc-100"
+                              onClick={() => { field.onChange(""); setDoctorDropdownOpen(false); }}
+                            >
+                              No preference — let the team decide
+                            </div>
+
+                            {doctors.map((d) => {
+                              const highestDegree = d.education.length > 0
+                                ? d.education[d.education.length - 1].degree
+                                : null;
+                              const isSelected = String(d.id) === field.value;
+                              return (
+                                <div
+                                  key={d.id}
+                                  className={`px-4 py-3.5 cursor-pointer border-b border-zinc-100 last:border-0 hover:bg-teal-50 transition-colors ${isSelected ? "bg-teal-50 border-l-2 border-l-teal-500" : ""}`}
+                                  onClick={() => { field.onChange(String(d.id)); setDoctorDropdownOpen(false); }}
+                                >
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <p className="text-sm font-semibold text-zinc-900">
+                                          Dr. {d.first_name} {d.last_name}
+                                        </p>
+                                        {isSelected && (
+                                          <span className="text-xs bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-medium">Selected</span>
+                                        )}
+                                      </div>
+                                      <p className="text-sm text-zinc-600 mt-0.5">
+                                        {d.specializations.map((s) => s.name).join(", ")}
+                                      </p>
+                                      <p className="text-xs text-zinc-400 mt-0.5">
+                                        {highestDegree && <span>{highestDegree}</span>}
+                                        {d.years_of_experience && (
+                                          <span> · {d.years_of_experience} yrs experience</span>
+                                        )}
+                                      </p>
+                                    </div>
+                                    {d.consultation_fee_usd && (
+                                      <div className="text-right shrink-0">
+                                        <p className="text-base font-bold text-teal-600">
+                                          ${Number(d.consultation_fee_usd).toLocaleString()}
+                                        </p>
+                                        <p className="text-xs text-zinc-400">per consult</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }} />
 
                 <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
                   {form.formState.isSubmitting ? "Submitting…" : "Submit Request"}

@@ -5,21 +5,37 @@ import Link from "next/link";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { SymptomIntake } from "@/types/api";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 
-const SEVERITY_COLORS: Record<string, string> = {
-  mild: "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100",
-  moderate: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100",
-  severe: "bg-red-100 text-red-700 border-red-200 hover:bg-red-100",
+const SEVERITY_STYLES: Record<string, string> = {
+  mild:     "bg-emerald-100 text-emerald-700",
+  moderate: "bg-amber-100 text-amber-700",
+  severe:   "bg-red-100 text-red-700",
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  pending: "bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-100",
-  matched: "bg-teal-100 text-teal-700 border-teal-200 hover:bg-teal-100",
-  cancelled: "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100",
+const STATUS_STYLES: Record<string, { badge: string; dot: string; label: string }> = {
+  pending:   { badge: "bg-zinc-100 text-zinc-600",   dot: "bg-amber-400",  label: "Pending review" },
+  matched:   { badge: "bg-teal-100 text-teal-700",   dot: "bg-teal-400",   label: "Doctor matched" },
+  cancelled: { badge: "bg-zinc-100 text-zinc-400",   dot: "bg-zinc-300",   label: "Cancelled" },
 };
+
+function IntakeSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl border border-zinc-200 p-5 animate-pulse space-y-3">
+      <div className="flex justify-between items-start">
+        <div className="space-y-2 flex-1">
+          <div className="h-4 bg-zinc-100 rounded w-48" />
+          <div className="h-3 bg-zinc-100 rounded w-64" />
+        </div>
+        <div className="flex gap-2">
+          <div className="h-5 w-16 bg-zinc-100 rounded-full" />
+          <div className="h-5 w-16 bg-zinc-100 rounded-full" />
+        </div>
+      </div>
+      <div className="h-3 bg-zinc-100 rounded w-full" />
+      <div className="h-3 bg-zinc-100 rounded w-4/5" />
+    </div>
+  );
+}
 
 export default function SymptomHistoryPage() {
   const [intakes, setIntakes] = useState<SymptomIntake[]>([]);
@@ -42,105 +58,127 @@ export default function SymptomHistoryPage() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
-      <div className="max-w-2xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Consultation Requests</h1>
-            <p className="text-sm text-zinc-500 mt-0.5">Your submitted symptom requests and their status.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/patient/symptoms" className="text-sm font-medium text-teal-600 hover:underline">
-              + New request
-            </Link>
-            <Link href="/patient" className="text-sm text-zinc-500 hover:underline">← Dashboard</Link>
-          </div>
-        </div>
+    <div className="p-8 space-y-6 max-w-3xl">
 
-        {loading ? (
-          <p className="text-sm text-zinc-400">Loading…</p>
-        ) : intakes.length === 0 ? (
-          <Card className="border border-zinc-200 shadow-sm">
-            <CardContent className="pt-8 pb-8 text-center space-y-3">
-              <p className="text-sm text-zinc-500">You haven&apos;t submitted any consultation requests yet.</p>
-              <Link
-                href="/patient/symptoms"
-                className="inline-flex items-center justify-center h-9 px-4 rounded-lg bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 transition-colors"
-              >
-                Request a consultation
-              </Link>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {intakes.map((intake) => (
-              <Card key={intake.id} className="border border-zinc-200 shadow-sm">
-                <CardContent className="pt-5 space-y-3">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold text-zinc-900">My Consultation Requests</h1>
+          <p className="text-sm text-zinc-500 mt-0.5">Track your submitted requests and matched doctors</p>
+        </div>
+        <Link
+          href="/patient/symptoms"
+          className="h-9 px-4 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors"
+        >
+          + New Request
+        </Link>
+      </div>
+
+      {/* List */}
+      {loading ? (
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => <IntakeSkeleton key={i} />)}
+        </div>
+      ) : intakes.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-zinc-200 p-14 text-center">
+          <p className="text-5xl mb-4">🩺</p>
+          <p className="font-bold text-zinc-700 text-lg">No requests yet</p>
+          <p className="text-zinc-400 text-sm mt-2">Submit your first consultation request and our team will match you to the right doctor.</p>
+          <Link
+            href="/patient/symptoms"
+            className="mt-5 inline-flex items-center h-10 px-6 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors"
+          >
+            Request a Consultation
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {intakes.map((intake) => {
+            const sta = STATUS_STYLES[intake.status];
+            return (
+              <div key={intake.id} className="bg-white rounded-2xl border border-zinc-200 hover:border-zinc-300 transition-colors overflow-hidden">
+                <div className="p-5 space-y-4">
+
+                  {/* Header row */}
                   <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1 min-w-0">
-                      <p className="font-medium text-zinc-900 truncate">{intake.chief_complaint}</p>
-                      <p className="text-xs text-zinc-400">
-                        {new Date(intake.created_at).toLocaleDateString("en-US", {
-                          year: "numeric", month: "short", day: "numeric",
-                        })}
-                        {" · "}Duration: {intake.duration}
-                      </p>
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${sta?.dot ?? "bg-zinc-300"}`} />
+                      <div className="min-w-0">
+                        <p className="font-bold text-zinc-900 truncate">{intake.chief_complaint}</p>
+                        <p className="text-xs text-zinc-400 mt-0.5">
+                          {new Date(intake.created_at).toLocaleDateString("en-US", {
+                            year: "numeric", month: "short", day: "numeric",
+                          })}
+                          {" · "}Duration: {intake.duration}
+                        </p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <Badge className={SEVERITY_COLORS[intake.severity] ?? ""}>
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${SEVERITY_STYLES[intake.severity] ?? ""}`}>
                         {intake.severity}
-                      </Badge>
-                      <Badge className={STATUS_COLORS[intake.status] ?? ""}>
-                        {intake.status}
-                      </Badge>
+                      </span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${sta?.badge ?? ""}`}>
+                        {sta?.label ?? intake.status}
+                      </span>
                     </div>
                   </div>
 
+                  {/* Symptom description */}
                   {intake.symptoms && (
-                    <p className="text-sm text-zinc-600 line-clamp-2">{intake.symptoms}</p>
+                    <p className="text-sm text-zinc-600 leading-relaxed line-clamp-2">{intake.symptoms}</p>
                   )}
 
+                  {/* Matched doctor */}
                   {intake.status === "matched" && intake.matched_doctor_detail && (
-                    <div className="rounded-lg bg-teal-50 border border-teal-100 px-4 py-3 space-y-1">
-                      <p className="text-xs font-medium text-teal-700 uppercase tracking-wide">Matched Doctor</p>
-                      <p className="text-sm font-semibold text-zinc-800">
-                        Dr. {intake.matched_doctor_detail.first_name} {intake.matched_doctor_detail.last_name}
-                      </p>
-                      {intake.matched_doctor_detail.specializations.length > 0 && (
-                        <p className="text-xs text-zinc-500">
-                          {intake.matched_doctor_detail.specializations.map((s) => s.name).join(", ")}
-                        </p>
-                      )}
+                    <div className="rounded-xl bg-teal-50 border border-teal-100 px-4 py-4 space-y-2">
+                      <p className="text-xs font-bold text-teal-600 uppercase tracking-widest">Your Matched Doctor</p>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center text-teal-700 font-bold text-sm shrink-0">
+                          {intake.matched_doctor_detail.first_name?.[0]}{intake.matched_doctor_detail.last_name?.[0]}
+                        </div>
+                        <div>
+                          <p className="font-bold text-zinc-900 text-sm">
+                            Dr. {intake.matched_doctor_detail.first_name} {intake.matched_doctor_detail.last_name}
+                          </p>
+                          {intake.matched_doctor_detail.specializations.length > 0 && (
+                            <p className="text-xs text-zinc-500 mt-0.5">
+                              {intake.matched_doctor_detail.specializations.map((s) => s.name).join(", ")}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                       {intake.admin_notes && (
-                        <p className="text-xs text-zinc-500 mt-1">Note: {intake.admin_notes}</p>
+                        <p className="text-xs text-zinc-500 bg-white rounded-lg px-3 py-2 border border-teal-100">
+                          {intake.admin_notes}
+                        </p>
                       )}
                       <Link
                         href={`/doctors/${intake.matched_doctor_detail.slug}`}
-                        className="inline-flex items-center text-xs text-teal-600 hover:underline mt-1"
+                        className="inline-flex items-center text-xs font-semibold text-teal-600 hover:text-teal-700 transition-colors"
                       >
                         View doctor profile →
                       </Link>
                     </div>
                   )}
 
+                  {/* Pending cancel action */}
                   {intake.status === "pending" && (
-                    <div className="flex justify-end">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50"
+                    <div className="pt-1 border-t border-zinc-100 flex justify-between items-center">
+                      <p className="text-xs text-zinc-400">Our team will review and match you shortly</p>
+                      <button
                         onClick={() => cancelIntake(intake.id)}
+                        className="h-8 px-3 rounded-xl border border-red-200 text-xs font-semibold text-red-500 hover:bg-red-50 transition-colors"
                       >
                         Cancel request
-                      </Button>
+                      </button>
                     </div>
                   )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-    </main>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
