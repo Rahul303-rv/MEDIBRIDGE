@@ -140,9 +140,39 @@ class SurgeryRecommendationSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurgeryRecommendation
         fields = [
-            "id", "package", "package_name", "package_slug", "hospital_name",
-            "surgery_type", "price_usd", "doctor_name", "patient_name",
+            "id", "status", "admin_notes", "package", "package_name", "package_slug",
+            "hospital_name", "surgery_type", "price_usd", "doctor_name", "patient_name",
             "patient_email", "notes", "appointment", "created_at",
+        ]
+
+    def get_doctor_name(self, obj):
+        return f"Dr. {obj.doctor.first_name} {obj.doctor.last_name}".strip()
+
+    def get_patient_name(self, obj):
+        name = f"{obj.patient.first_name} {obj.patient.last_name}".strip()
+        return name or obj.patient.user.email
+
+    def get_patient_email(self, obj):
+        return obj.patient.user.email
+
+
+class AdminSurgeryRecommendationSerializer(serializers.ModelSerializer):
+    doctor_name = serializers.SerializerMethodField()
+    patient_name = serializers.SerializerMethodField()
+    patient_email = serializers.SerializerMethodField()
+    package_name = serializers.CharField(source="package.name", read_only=True)
+    package_slug = serializers.CharField(source="package.slug", read_only=True)
+    hospital_name = serializers.CharField(source="package.hospital.name", read_only=True)
+    surgery_type = serializers.CharField(source="package.surgery_type", read_only=True)
+    price_usd = serializers.CharField(source="package.price_usd", read_only=True)
+
+    class Meta:
+        model = SurgeryRecommendation
+        fields = [
+            "id", "status", "admin_notes", "package", "package_name", "package_slug",
+            "hospital_name", "surgery_type", "price_usd",
+            "doctor_name", "patient_name", "patient_email",
+            "notes", "appointment", "created_at",
         ]
 
     def get_doctor_name(self, obj):

@@ -33,22 +33,3 @@ class IsVerifiedDoctor(BasePermission):
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated and request.user.role == "admin")
-    def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.role == "patient")
-
-
-class IsDoctor(BasePermission):
-    def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.role == "doctor")
-
-
-class IsVerifiedDoctor(BasePermission):
-    def has_permission(self, request, view):
-        if not (request.user and request.user.is_authenticated and request.user.role == "doctor"):
-            return False
-        return getattr(request.user.doctor_profile, "is_verified", False)
-
-
-class IsAdmin(BasePermission):
-    def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.role == "admin")

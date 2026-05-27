@@ -31,16 +31,16 @@ const BOOKING_STATUS: Record<string, { badge: string; label: string }> = {
 
 function RecommendationSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-zinc-200 p-5 animate-pulse space-y-3">
+    <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-5 animate-pulse space-y-3">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-2 flex-1">
-          <div className="h-4 bg-zinc-100 rounded w-48" />
-          <div className="h-3 bg-zinc-100 rounded w-32" />
-          <div className="h-3 bg-zinc-100 rounded w-20" />
+          <div className="h-4 bg-zinc-100 dark:bg-zinc-700 rounded w-48" />
+          <div className="h-3 bg-zinc-100 dark:bg-zinc-700 rounded w-32" />
+          <div className="h-3 bg-zinc-100 dark:bg-zinc-700 rounded w-20" />
         </div>
         <div className="space-y-2 items-end flex flex-col">
-          <div className="h-4 bg-zinc-100 rounded w-28" />
-          <div className="h-5 bg-zinc-100 rounded-full w-24" />
+          <div className="h-4 bg-zinc-100 dark:bg-zinc-700 rounded w-28" />
+          <div className="h-5 bg-zinc-100 dark:bg-zinc-700 rounded-full w-24" />
         </div>
       </div>
     </div>
@@ -101,19 +101,19 @@ export default function DoctorSurgeryRecommendationsPage() {
   }
 
   return (
-    <div className="p-8 space-y-6 max-w-3xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-3xl">
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-zinc-900">Surgery Recommendations</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">Recommend surgery packages to your patients</p>
+          <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white">Surgery Recommendations</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Recommend surgery packages to your patients</p>
         </div>
         <button
           onClick={() => setShowForm((v) => !v)}
           className={`h-9 px-4 rounded-xl text-sm font-semibold transition-colors ${
             showForm
-              ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+              ? "bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
               : "bg-teal-600 text-white hover:bg-teal-700"
           }`}
         >
@@ -123,20 +123,20 @@ export default function DoctorSurgeryRecommendationsPage() {
 
       {/* New recommendation form */}
       {showForm && (
-        <div className="bg-white rounded-2xl border border-teal-200 overflow-hidden">
+        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-teal-200 overflow-hidden">
           <div className="px-5 py-4 bg-teal-50 border-b border-teal-100">
             <p className="font-bold text-teal-800 text-sm">Send a Surgery Recommendation</p>
             <p className="text-xs text-teal-600 mt-0.5">The patient will receive this recommendation in their portal</p>
           </div>
           <form onSubmit={submit} className="p-5 space-y-4">
             <div>
-              <label className="text-xs font-semibold text-zinc-600 mb-1.5 block">
+              <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1.5 block">
                 Select completed appointment (patient)
               </label>
               <select
                 value={apptId}
                 onChange={(e) => setApptId(e.target.value)}
-                className="flex h-9 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm outline-none focus:border-teal-400 transition-colors"
+                className="flex h-9 w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3 text-sm outline-none focus:border-teal-400 transition-colors"
               >
                 <option value="">Choose appointment…</option>
                 {appointments.map((a) => (
@@ -149,11 +149,11 @@ export default function DoctorSurgeryRecommendationsPage() {
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold text-zinc-600 mb-1.5 block">Surgery package</label>
+              <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1.5 block">Surgery package</label>
               <select
                 value={packageId}
                 onChange={(e) => setPackageId(e.target.value)}
-                className="flex h-9 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm outline-none focus:border-teal-400 transition-colors"
+                className="flex h-9 w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3 text-sm outline-none focus:border-teal-400 transition-colors"
               >
                 <option value="">Choose package…</option>
                 {packages.map((p) => (
@@ -164,15 +164,15 @@ export default function DoctorSurgeryRecommendationsPage() {
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold text-zinc-600 mb-1.5 block">
-                Clinical notes <span className="text-zinc-400 font-normal">(optional)</span>
+              <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1.5 block">
+                Clinical notes <span className="text-zinc-400 dark:text-zinc-500 font-normal">(optional)</span>
               </label>
               <textarea
                 rows={3}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Why you're recommending this procedure…"
-                className="flex w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none focus:border-teal-400 transition-colors resize-none"
+                className="flex w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3 py-2 text-sm outline-none focus:border-teal-400 transition-colors resize-none"
               />
             </div>
             <button
@@ -192,10 +192,10 @@ export default function DoctorSurgeryRecommendationsPage() {
           {[...Array(3)].map((_, i) => <RecommendationSkeleton key={i} />)}
         </div>
       ) : recommendations.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-zinc-200 p-14 text-center">
+        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-14 text-center">
           <p className="text-5xl mb-4">✂️</p>
-          <p className="font-bold text-zinc-700 text-lg">No recommendations yet</p>
-          <p className="text-zinc-400 text-sm mt-2 max-w-xs mx-auto">
+          <p className="font-bold text-zinc-700 dark:text-zinc-200 text-lg">No recommendations yet</p>
+          <p className="text-zinc-400 dark:text-zinc-500 text-sm mt-2 max-w-xs mx-auto">
             After completing a consultation, you can recommend a surgery package to your patient.
           </p>
           <button
@@ -212,8 +212,8 @@ export default function DoctorSurgeryRecommendationsPage() {
             return (
               <div
                 key={r.id}
-                className={`bg-white rounded-2xl border overflow-hidden transition-all ${
-                  r.booking_id ? "border-emerald-200" : "border-zinc-200"
+                className={`bg-white dark:bg-zinc-800 rounded-2xl border overflow-hidden transition-all ${
+                  r.booking_id ? "border-emerald-200" : "border-zinc-200 dark:border-zinc-700"
                 }`}
               >
                 {r.booking_id && (
@@ -228,8 +228,8 @@ export default function DoctorSurgeryRecommendationsPage() {
                           ✂️
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-zinc-900 text-sm">{r.package_name}</p>
-                          <p className="text-xs text-zinc-400 mt-0.5">
+                          <p className="font-bold text-zinc-900 dark:text-white text-sm">{r.package_name}</p>
+                          <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                             {r.hospital_name} · <span className="capitalize">{r.surgery_type.replace(/_/g, " ")}</span>
                           </p>
                         </div>
@@ -240,8 +240,8 @@ export default function DoctorSurgeryRecommendationsPage() {
                     {/* Patient + booking status */}
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       <div className="text-right">
-                        <p className="text-xs font-semibold text-zinc-700">{r.patient_name}</p>
-                        <p className="text-xs text-zinc-400">{r.patient_email}</p>
+                        <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-200">{r.patient_name}</p>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500">{r.patient_email}</p>
                       </div>
                       {bookingStyle && (
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${bookingStyle.badge}`}>
@@ -252,13 +252,13 @@ export default function DoctorSurgeryRecommendationsPage() {
                   </div>
 
                   {r.notes && (
-                    <div className="bg-zinc-50 rounded-xl px-3 py-2.5 border border-zinc-100">
-                      <p className="text-xs text-zinc-500 leading-relaxed">{r.notes}</p>
+                    <div className="bg-zinc-50 dark:bg-zinc-700/50 rounded-xl px-3 py-2.5 border border-zinc-100 dark:border-zinc-800">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{r.notes}</p>
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-1 border-t border-zinc-50">
-                    <p className="text-xs text-zinc-300">
+                  <div className="flex items-center justify-between pt-1 border-t border-zinc-50 dark:border-zinc-800">
+                    <p className="text-xs text-zinc-300 dark:text-zinc-600">
                       {new Date(r.created_at).toLocaleDateString("en-US", {
                         month: "short", day: "numeric", year: "numeric",
                       })}

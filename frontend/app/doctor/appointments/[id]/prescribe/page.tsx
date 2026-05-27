@@ -53,6 +53,7 @@ export default function PrescribePage() {
 
   // Surgery recommendation (optional)
   const [packages, setPackages] = useState<SurgeryPackage[]>([]);
+  const [recommendSurgery, setRecommendSurgery] = useState(false);
   const [surgeryPackageId, setSurgeryPackageId] = useState("");
   const [surgeryNotes, setSurgeryNotes] = useState("");
 
@@ -125,22 +126,22 @@ export default function PrescribePage() {
     }
   }
 
-  if (loading) return <main className="min-h-screen bg-zinc-50 p-8"><p className="text-sm text-zinc-400">Loading…</p></main>;
+  if (loading) return <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8"><p className="text-sm text-zinc-400">Loading…</p></main>;
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-zinc-900">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
             {prescriptionId ? "Edit Prescription" : "Write Prescription"}
           </h1>
-          <Link href={`/doctor/appointments/${id}`} className="text-sm text-zinc-500 hover:underline">← Back</Link>
+          <Link href={`/doctor/appointments/${id}`} className="text-sm text-zinc-500 dark:text-zinc-400 hover:underline">← Back</Link>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* Diagnosis */}
-          <Card className="border border-zinc-200 shadow-sm">
+          <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Diagnosis *</CardTitle></CardHeader>
             <CardContent>
               <textarea
@@ -154,7 +155,7 @@ export default function PrescribePage() {
           </Card>
 
           {/* Medicines */}
-          <Card className="border border-zinc-200 shadow-sm">
+          <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-semibold">Medicines</CardTitle>
@@ -166,17 +167,17 @@ export default function PrescribePage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {medicines.map((med, i) => (
-                <div key={i} className="border border-zinc-100 rounded-lg p-4 space-y-3">
+                <div key={i} className="border border-zinc-100 dark:border-zinc-700 rounded-lg p-4 space-y-3">
                   <div className="flex gap-3">
                     <div className="flex-1">
-                      <label className="text-xs text-zinc-500 mb-1 block">Medicine Name</label>
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Medicine Name</label>
                       <input type="text" value={med.medicine_name}
                         onChange={(e) => updateMedicine(i, "medicine_name", e.target.value)}
                         className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring"
                         placeholder="e.g. Azithromycin 500mg" />
                     </div>
                     <div style={{width:"110px"}}>
-                      <label className="text-xs text-zinc-500 mb-1 block">Dosage</label>
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Dosage</label>
                       <input type="text" value={med.dosage}
                         onChange={(e) => updateMedicine(i, "dosage", e.target.value)}
                         className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring"
@@ -185,9 +186,9 @@ export default function PrescribePage() {
                   </div>
 
                   <div className="flex items-center gap-6">
-                    <span className="text-xs text-zinc-500">Timing:</span>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">Timing:</span>
                     {(["morning","afternoon","evening","night"] as const).map((t) => (
-                      <label key={t} className="flex items-center gap-1.5 text-xs text-zinc-700 cursor-pointer">
+                      <label key={t} className="flex items-center gap-1.5 text-xs text-zinc-700 dark:text-zinc-300 cursor-pointer">
                         <input type="checkbox" checked={med[t]}
                           onChange={(e) => updateMedicine(i, t, e.target.checked)}
                           className="rounded" />
@@ -198,7 +199,7 @@ export default function PrescribePage() {
 
                   <div className="flex gap-3">
                     <div>
-                      <label className="text-xs text-zinc-500 mb-1 block">Meal Timing</label>
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Meal Timing</label>
                       <select value={med.meal_timing}
                         onChange={(e) => updateMedicine(i, "meal_timing", e.target.value)}
                         className="rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring">
@@ -209,13 +210,13 @@ export default function PrescribePage() {
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs text-zinc-500 mb-1 block">Duration (days)</label>
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Duration (days)</label>
                       <input type="number" min={1} value={med.duration_days}
                         onChange={(e) => updateMedicine(i, "duration_days", parseInt(e.target.value) || 1)}
                         className="rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring w-20" />
                     </div>
                     <div className="flex-1">
-                      <label className="text-xs text-zinc-500 mb-1 block">Instructions</label>
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Instructions</label>
                       <input type="text" value={med.instructions}
                         onChange={(e) => updateMedicine(i, "instructions", e.target.value)}
                         className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring"
@@ -237,7 +238,7 @@ export default function PrescribePage() {
           </Card>
 
           {/* Tests */}
-          <Card className="border border-zinc-200 shadow-sm">
+          <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-semibold">Recommended Tests</CardTitle>
@@ -252,14 +253,14 @@ export default function PrescribePage() {
               {tests.map((t, i) => (
                 <div key={i} className="flex gap-3 items-end">
                   <div className="flex-1">
-                    <label className="text-xs text-zinc-500 mb-1 block">Test Name</label>
+                    <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Test Name</label>
                     <input type="text" value={t.test_name}
                       onChange={(e) => updateTest(i, "test_name", e.target.value)}
                       className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring"
                       placeholder="e.g. Chest X-ray" />
                   </div>
                   <div>
-                    <label className="text-xs text-zinc-500 mb-1 block">Urgency</label>
+                    <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Urgency</label>
                     <select value={t.urgency}
                       onChange={(e) => updateTest(i, "urgency", e.target.value)}
                       className="rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring">
@@ -268,7 +269,7 @@ export default function PrescribePage() {
                     </select>
                   </div>
                   <div className="flex-1">
-                    <label className="text-xs text-zinc-500 mb-1 block">Instructions</label>
+                    <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Instructions</label>
                     <input type="text" value={t.instructions}
                       onChange={(e) => updateTest(i, "instructions", e.target.value)}
                       className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring"
@@ -285,15 +286,15 @@ export default function PrescribePage() {
           </Card>
 
           {/* Follow-up + Notes */}
-          <Card className="border border-zinc-200 shadow-sm">
+          <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
             <CardContent className="pt-5 space-y-4">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={followUp}
                   onChange={(e) => setFollowUp(e.target.checked)}
                   className="rounded" />
-                <span className="text-sm text-zinc-700">Recommend follow-up</span>
+                <span className="text-sm text-zinc-700 dark:text-zinc-300">Recommend follow-up</span>
                 {followUp && (
-                  <span className="flex items-center gap-2 text-sm text-zinc-600">
+                  <span className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                     after
                     <input type="number" min={1} value={followUpDays}
                       onChange={(e) => setFollowUpDays(parseInt(e.target.value) || 7)}
@@ -304,7 +305,7 @@ export default function PrescribePage() {
               </label>
 
               <div>
-                <label className="text-xs text-zinc-500 mb-1 block">General Notes</label>
+                <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">General Notes</label>
                 <textarea value={generalNotes}
                   onChange={(e) => setGeneralNotes(e.target.value)}
                   rows={3}
@@ -315,29 +316,42 @@ export default function PrescribePage() {
           </Card>
 
           {/* Surgery Recommendation (optional) */}
-          <Card className="border border-zinc-200 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold">Surgery Recommendation <span className="text-zinc-400 font-normal">(optional)</span></CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <label className="text-xs text-zinc-500 mb-1 block">Recommend a surgery package to this patient</label>
-                <select value={surgeryPackageId} onChange={(e) => setSurgeryPackageId(e.target.value)}
-                  className="flex h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring">
-                  <option value="">No surgery recommendation</option>
-                  {packages.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} — {p.hospital_name} (${p.price_usd})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {surgeryPackageId && (
-                <div>
-                  <label className="text-xs text-zinc-500 mb-1 block">Clinical reason / notes for patient</label>
-                  <textarea rows={2} value={surgeryNotes} onChange={(e) => setSurgeryNotes(e.target.value)}
-                    placeholder="Why you're recommending this procedure…"
-                    className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring resize-none" />
+          <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
+            <CardContent className="pt-5 space-y-4">
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={recommendSurgery}
+                  onChange={(e) => {
+                    setRecommendSurgery(e.target.checked);
+                    if (!e.target.checked) { setSurgeryPackageId(""); setSurgeryNotes(""); }
+                  }}
+                  className="rounded"
+                />
+                <span className="text-sm text-zinc-700 dark:text-zinc-300">Recommend Surgery</span>
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">(optional)</span>
+              </label>
+
+              {recommendSurgery && (
+                <div className="space-y-3 pl-7">
+                  <div>
+                    <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Surgery Package</label>
+                    <select value={surgeryPackageId} onChange={(e) => setSurgeryPackageId(e.target.value)}
+                      className="flex h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring">
+                      <option value="">Select a package…</option>
+                      {packages.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} — {p.hospital_name} (${p.price_usd})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Clinical reason / notes for patient</label>
+                    <textarea rows={2} value={surgeryNotes} onChange={(e) => setSurgeryNotes(e.target.value)}
+                      placeholder="Why you're recommending this procedure…"
+                      className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring resize-none" />
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -349,7 +363,7 @@ export default function PrescribePage() {
               {saving ? "Saving…" : prescriptionId ? "Update Prescription" : "Save Prescription"}
             </Button>
             <Link href={`/doctor/appointments/${id}`}
-              className="inline-flex items-center justify-center h-10 px-4 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
+              className="inline-flex items-center justify-center h-10 px-4 rounded-lg border border-zinc-200 dark:border-zinc-600 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors">
               Cancel
             </Link>
           </div>

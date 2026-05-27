@@ -308,6 +308,26 @@ export interface SurgeryBookingDetail {
   updated_at: string;
 }
 
+export interface MedicalReport {
+  id: number;
+  title: string;
+  file: string;
+  uploaded_at: string;
+}
+
+export interface PatientMedicalProfile {
+  full_name: string;
+  date_of_birth: string | null;
+  gender: string;
+  height_cm: number | null;
+  weight_kg: string | null;
+  blood_group: string;
+  existing_conditions: string;
+  allergies: string;
+  current_medications: string;
+  medical_reports: MedicalReport[];
+}
+
 export interface ApiError {
   error: {
     code: string;

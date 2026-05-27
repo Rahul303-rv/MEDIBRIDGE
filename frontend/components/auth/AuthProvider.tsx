@@ -19,22 +19,27 @@ const AuthContext = createContext<AuthContextValue>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUserState] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api
       .get("/api/v1/auth/me")
-      .then((res) => setUser(res.data.user))
-      .catch(() => setUser(null))
+      .then((res) => setUserState(res.data.user))
+      .catch(() => setUserState(null))
       .finally(() => setLoading(false));
+  }, []);
+
+  const setUser = useCallback((newUser: User | null) => {
+    setUserState(newUser);
+    setLoading(false);
   }, []);
 
   const logout = useCallback(async () => {
     try {
       await api.post("/api/v1/auth/logout");
     } catch {}
-    setUser(null);
+    setUserState(null);
     window.location.href = "/";
   }, []);
 

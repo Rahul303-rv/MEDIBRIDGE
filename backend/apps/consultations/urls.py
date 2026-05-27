@@ -22,6 +22,7 @@ doctor_patterns = [
     path("appointments/<int:pk>/status", views.doctor_appointment_status, name="doctor-appointment-status"),
     path("appointments/<int:pk>/prescription", views.doctor_prescription, name="doctor-prescription"),
     path("appointments/<int:pk>/follow-up", views.doctor_follow_up, name="doctor-follow-up"),
+    path("appointments/<int:pk>/patient-profile", views.doctor_appointment_patient_profile, name="doctor-appointment-patient-profile"),
     path("prescriptions/<int:pk>", views.doctor_prescription_edit, name="doctor-prescription-edit"),
 ]
 

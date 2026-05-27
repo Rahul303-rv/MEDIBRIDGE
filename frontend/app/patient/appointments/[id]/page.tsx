@@ -10,11 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const STATUS_COLORS: Record<string, string> = {
-  scheduled:   "bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-100",
-  in_progress: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100",
-  completed:   "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100",
-  cancelled:   "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100",
-  no_show:     "bg-red-100 text-red-600 border-red-200 hover:bg-red-100",
+  scheduled:   "bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-100 dark:bg-zinc-700 dark:text-zinc-300 dark:border-zinc-600",
+  in_progress: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
+  completed:   "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
+  cancelled:   "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 dark:bg-zinc-700 dark:text-zinc-500 dark:border-zinc-600",
+  no_show:     "bg-red-100 text-red-600 border-red-200 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
 };
 
 function isInJoinWindow(scheduledStart: string): boolean {
@@ -35,9 +35,9 @@ export default function PatientAppointmentDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <main className="min-h-screen bg-zinc-50 p-8"><p className="text-sm text-zinc-400">Loading…</p></main>;
+  if (loading) return <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8"><p className="text-sm text-zinc-400">Loading…</p></main>;
   if (!appt) return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <p className="text-sm text-zinc-500">Appointment not found.</p>
       <Link href="/patient/appointments" className="text-sm text-teal-600 hover:underline mt-2 block">← Back</Link>
     </main>
@@ -47,11 +47,11 @@ export default function PatientAppointmentDetailPage() {
   const joinReady = showJoin && isInJoinWindow(appt.scheduled_start);
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <div className="max-w-xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-zinc-900">Appointment Details</h1>
-          <Link href="/patient/appointments" className="text-sm text-zinc-500 hover:underline">← Back</Link>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Appointment Details</h1>
+          <Link href="/patient/appointments" className="text-sm text-zinc-500 dark:text-zinc-400 hover:underline">← Back</Link>
         </div>
 
         <Card className="border border-zinc-200 shadow-sm">
@@ -64,8 +64,8 @@ export default function PatientAppointmentDetailPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Date &amp; Time</p>
-                <p className="text-zinc-700 mt-0.5">
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Date &amp; Time</p>
+                <p className="text-zinc-700 dark:text-zinc-300 mt-0.5">
                   {new Date(appt.scheduled_start).toLocaleString("en-US", {
                     weekday: "long", month: "long", day: "numeric",
                     hour: "2-digit", minute: "2-digit",
@@ -73,20 +73,20 @@ export default function PatientAppointmentDetailPage() {
                 </p>
               </div>
               <div>
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Duration</p>
-                <p className="text-zinc-700 mt-0.5">
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Duration</p>
+                <p className="text-zinc-700 dark:text-zinc-300 mt-0.5">
                   {Math.round((new Date(appt.scheduled_end).getTime() - new Date(appt.scheduled_start).getTime()) / 60000)} min
                 </p>
               </div>
               {appt.doctor_fee && (
                 <div>
-                  <p className="text-xs text-zinc-400 uppercase tracking-wide">Fee</p>
-                  <p className="text-zinc-700 mt-0.5">${appt.doctor_fee}</p>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Fee</p>
+                  <p className="text-zinc-700 dark:text-zinc-300 mt-0.5">${appt.doctor_fee}</p>
                 </div>
               )}
               {appt.payment_ref && (
                 <div>
-                  <p className="text-xs text-zinc-400 uppercase tracking-wide">Payment Ref</p>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Payment Ref</p>
                   <p className="text-zinc-700 mt-0.5 font-mono text-xs">{appt.payment_ref}</p>
                 </div>
               )}
@@ -94,7 +94,7 @@ export default function PatientAppointmentDetailPage() {
 
             {appt.notes && (
               <div>
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Notes</p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Notes</p>
                 <p className="text-sm text-zinc-700 mt-0.5">{appt.notes}</p>
               </div>
             )}
@@ -115,7 +115,7 @@ export default function PatientAppointmentDetailPage() {
 
               {appt.status === "completed" && appt.has_prescription && (
                 <Link href={`/patient/appointments/${appt.id}/prescription`}
-                  className="inline-flex items-center justify-center h-10 px-5 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
+                  className="inline-flex items-center justify-center h-10 px-5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
                   View Prescription
                 </Link>
               )}

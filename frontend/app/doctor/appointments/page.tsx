@@ -31,18 +31,18 @@ function isInJoinWindow(scheduledStart: string): boolean {
 
 function AppointmentSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-zinc-200 p-5 animate-pulse space-y-3">
+    <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-5 animate-pulse space-y-3">
       <div className="flex justify-between items-start">
         <div className="space-y-2">
-          <div className="h-4 bg-zinc-100 rounded w-40" />
-          <div className="h-3 bg-zinc-100 rounded w-28" />
-          <div className="h-3 bg-zinc-100 rounded w-44" />
+          <div className="h-4 bg-zinc-100 dark:bg-zinc-700 rounded w-40" />
+          <div className="h-3 bg-zinc-100 dark:bg-zinc-700 rounded w-28" />
+          <div className="h-3 bg-zinc-100 dark:bg-zinc-700 rounded w-44" />
         </div>
-        <div className="h-6 w-24 bg-zinc-100 rounded-full" />
+        <div className="h-6 w-24 bg-zinc-100 dark:bg-zinc-700 rounded-full" />
       </div>
       <div className="flex gap-2 pt-1">
-        <div className="h-9 w-28 bg-zinc-100 rounded-xl" />
-        <div className="h-9 w-24 bg-zinc-100 rounded-xl" />
+        <div className="h-9 w-28 bg-zinc-100 dark:bg-zinc-700 rounded-xl" />
+        <div className="h-9 w-24 bg-zinc-100 dark:bg-zinc-700 rounded-xl" />
       </div>
     </div>
   );
@@ -57,9 +57,9 @@ function AppointmentCard({
   const joinReady = showJoin && isInJoinWindow(appt.scheduled_start);
 
   return (
-    <div className={`bg-white rounded-2xl border overflow-hidden transition-all ${
+    <div className={`bg-white dark:bg-zinc-800 rounded-2xl border overflow-hidden transition-all ${
       appt.status === "in_progress" ? "border-purple-200" :
-      appt.status === "proposed" ? "border-amber-200" : "border-zinc-200"
+      appt.status === "proposed" ? "border-amber-200" : "border-zinc-200 dark:border-zinc-700"
     }`}>
       {appt.status === "in_progress" && (
         <div className="h-1 bg-gradient-to-r from-purple-400 to-blue-400" />
@@ -69,11 +69,11 @@ function AppointmentCard({
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 min-w-0">
-            <div className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${style?.dot ?? "bg-zinc-300"}`} />
+            <div className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${style?.dot ?? "bg-zinc-300 dark:bg-zinc-600"}`} />
             <div className="min-w-0">
-              <p className="font-bold text-zinc-900">{appt.patient_name}</p>
-              <p className="text-xs text-zinc-400 mt-0.5">{appt.patient_email}</p>
-              <p className="text-xs text-zinc-500 mt-1">
+              <p className="font-bold text-zinc-900 dark:text-white">{appt.patient_name}</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{appt.patient_email}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                 {new Date(appt.scheduled_start).toLocaleString("en-US", {
                   weekday: "short", month: "short", day: "numeric",
                   hour: "2-digit", minute: "2-digit",
@@ -103,7 +103,7 @@ function AppointmentCard({
                 Join Call
               </a>
             ) : (
-              <span className="h-9 px-4 rounded-xl bg-zinc-100 text-zinc-400 text-xs font-medium flex items-center cursor-not-allowed">
+              <span className="h-9 px-4 rounded-xl bg-zinc-100 dark:bg-zinc-700 text-zinc-400 dark:text-zinc-500 text-xs font-medium flex items-center cursor-not-allowed">
                 Available 15 min before
               </span>
             )
@@ -164,12 +164,12 @@ export default function DoctorAppointmentsPage() {
   const past     = appointments.filter((a) => ["completed", "cancelled", "no_show"].includes(a.status));
 
   return (
-    <div className="p-8 space-y-6 max-w-3xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-3xl">
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-extrabold text-zinc-900">My Schedule</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">Manage your upcoming and past consultations</p>
+        <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white">My Schedule</h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Manage your upcoming and past consultations</p>
       </div>
 
       {loading ? (
@@ -177,10 +177,10 @@ export default function DoctorAppointmentsPage() {
           {[...Array(3)].map((_, i) => <AppointmentSkeleton key={i} />)}
         </div>
       ) : appointments.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-zinc-200 p-14 text-center">
+        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-14 text-center">
           <p className="text-5xl mb-4">📅</p>
-          <p className="font-bold text-zinc-700 text-lg">No appointments yet</p>
-          <p className="text-zinc-400 text-sm mt-2">
+          <p className="font-bold text-zinc-700 dark:text-zinc-200 text-lg">No appointments yet</p>
+          <p className="text-zinc-400 dark:text-zinc-500 text-sm mt-2">
             Appointments will appear here once patients book with you. Make sure your availability is set.
           </p>
           <Link
@@ -209,7 +209,7 @@ export default function DoctorAppointmentsPage() {
             <section className="space-y-3">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-blue-400" />
-                <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Upcoming</h2>
+                <h2 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Upcoming</h2>
               </div>
               {upcoming.map((appt) => (
                 <AppointmentCard key={appt.id} appt={appt} onUpdate={updateStatus} />
@@ -219,8 +219,8 @@ export default function DoctorAppointmentsPage() {
           {past.length > 0 && (
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-zinc-300" />
-                <h2 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Past</h2>
+                <div className="w-2 h-2 rounded-full bg-zinc-300 dark:bg-zinc-600" />
+                <h2 className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Past</h2>
               </div>
               {past.map((appt) => (
                 <AppointmentCard key={appt.id} appt={appt} onUpdate={updateStatus} />

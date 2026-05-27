@@ -41,11 +41,11 @@ interface Recommendation {
 type BookingWithRec = SurgeryBookingDetail & { recommendation?: Recommendation | null };
 
 const STATUS_COLORS: Record<string, string> = {
-  info_pending:    "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100",
-  payment_pending: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100",
-  confirmed:       "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100",
-  completed:       "bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-100",
-  cancelled:       "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100",
+  info_pending:    "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800",
+  payment_pending: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
+  confirmed:       "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
+  completed:       "bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-100 dark:bg-zinc-700 dark:text-zinc-300 dark:border-zinc-600",
+  cancelled:       "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 dark:bg-zinc-700 dark:text-zinc-500 dark:border-zinc-600",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -95,9 +95,9 @@ export default function SurgeryBookingDetailPage() {
     }
   }
 
-  if (loading) return <main className="min-h-screen bg-zinc-50 p-8"><p className="text-sm text-zinc-400">Loading…</p></main>;
+  if (loading) return <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8"><p className="text-sm text-zinc-400">Loading…</p></main>;
   if (!booking) return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <p className="text-sm text-zinc-500">Booking not found.</p>
       <Link href="/patient/surgery-bookings" className="text-sm text-teal-600 hover:underline mt-2 block">← Back</Link>
     </main>
@@ -112,11 +112,11 @@ export default function SurgeryBookingDetailPage() {
     : null;
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-zinc-900">Booking #{booking.id}</h1>
-          <Link href="/patient/surgery-bookings" className="text-sm text-zinc-500 hover:underline">← Bookings</Link>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Booking #{booking.id}</h1>
+          <Link href="/patient/surgery-bookings" className="text-sm text-zinc-500 dark:text-zinc-400 hover:underline">← Bookings</Link>
         </div>
 
         {/* Package + Status */}
@@ -126,7 +126,7 @@ export default function SurgeryBookingDetailPage() {
               <CardTitle className="text-base font-semibold">{booking.package_name}</CardTitle>
               <Badge className={STATUS_COLORS[booking.status] ?? ""}>{STATUS_LABEL[booking.status]}</Badge>
             </div>
-            <p className="text-sm text-zinc-500">{booking.hospital_name} · {booking.hospital_city}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{booking.hospital_name} · {booking.hospital_city}</p>
             {rec && (
               <p className="text-xs text-teal-700 font-medium mt-1">Recommended by {rec.doctor_name}</p>
             )}
@@ -134,20 +134,20 @@ export default function SurgeryBookingDetailPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Surgery Type</p>
-                <p className="text-zinc-700 mt-0.5 capitalize">{booking.surgery_type.replace(/_/g, " ")}</p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Surgery Type</p>
+                <p className="text-zinc-700 dark:text-zinc-300 mt-0.5 capitalize">{booking.surgery_type.replace(/_/g, " ")}</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Tentative Date</p>
-                <p className="text-zinc-700 mt-0.5">{new Date(booking.tentative_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Tentative Date</p>
+                <p className="text-zinc-700 dark:text-zinc-300 mt-0.5">{new Date(booking.tentative_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Package Price</p>
-                <p className="text-zinc-700 mt-0.5">${Number(booking.total_amount_usd).toLocaleString()} USD</p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Package Price</p>
+                <p className="text-zinc-700 dark:text-zinc-300 mt-0.5">${Number(booking.total_amount_usd).toLocaleString()} USD</p>
               </div>
               {booking.payment_ref && (
                 <div>
-                  <p className="text-xs text-zinc-400 uppercase tracking-wide">Payment Ref</p>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Payment Ref</p>
                   <p className="text-zinc-700 mt-0.5 font-mono text-xs">{booking.payment_ref}</p>
                 </div>
               )}
@@ -156,7 +156,7 @@ export default function SurgeryBookingDetailPage() {
             {ti && (
               <div>
                 <p className="text-xs text-zinc-400 uppercase tracking-wide mb-2">Travel Information</p>
-                <div className="bg-zinc-50 rounded-lg p-3 text-sm space-y-1">
+                <div className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-3 text-sm space-y-1">
                   <p><span className="text-zinc-400">Passport:</span> ****{ti.passport_number.slice(-4)} ({ti.passport_country})</p>
                   <p><span className="text-zinc-400">Passport Expiry:</span> {ti.passport_expiry}</p>
                   <p><span className="text-zinc-400">Visa Required:</span> {ti.visa_required ? "Yes" : "No"}</p>
@@ -172,8 +172,8 @@ export default function SurgeryBookingDetailPage() {
                 <p className="text-xs text-zinc-400 uppercase tracking-wide mb-2">Documents</p>
                 <div className="space-y-1">
                   {booking.documents.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between bg-zinc-50 rounded-lg px-3 py-2">
-                      <span className="text-sm text-zinc-700 capitalize">{doc.doc_type.replace("_", " ")}</span>
+                    <div key={doc.id} className="flex items-center justify-between bg-zinc-50 dark:bg-zinc-700 rounded-lg px-3 py-2">
+                      <span className="text-sm text-zinc-700 dark:text-zinc-300 capitalize">{doc.doc_type.replace("_", " ")}</span>
                       <span className={`text-xs ${doc.is_verified ? "text-emerald-600" : "text-zinc-400"}`}>
                         {doc.is_verified ? "Verified" : "Pending"}
                       </span>
@@ -184,10 +184,10 @@ export default function SurgeryBookingDetailPage() {
             )}
 
             {booking.coupon && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-                <p className="text-xs text-emerald-600 font-semibold uppercase tracking-wide mb-1">Voucher</p>
-                <p className="font-mono text-sm font-bold text-emerald-700">{booking.coupon.code}</p>
-                <p className="text-xs text-zinc-500 mt-0.5">Valid: {booking.coupon.valid_from} — {booking.coupon.valid_until}</p>
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wide mb-1">Voucher</p>
+                <p className="font-mono text-sm font-bold text-emerald-700 dark:text-emerald-400">{booking.coupon.code}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Valid: {booking.coupon.valid_from} — {booking.coupon.valid_until}</p>
               </div>
             )}
 
@@ -210,14 +210,14 @@ export default function SurgeryBookingDetailPage() {
 
         {/* Consultation History */}
         {rec && (
-          <Card className="border border-teal-200 shadow-sm bg-teal-50">
+          <Card className="border border-teal-200 dark:border-teal-800 shadow-sm bg-teal-50 dark:bg-teal-900/20">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-teal-800">Consultation That Led to This Booking</CardTitle>
+              <CardTitle className="text-sm font-semibold text-teal-800 dark:text-teal-300">Consultation That Led to This Booking</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium text-zinc-800">{rec.doctor_name}</p>
+                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{rec.doctor_name}</p>
                   {rec.appointment_date && (
                     <p className="text-xs text-zinc-500">
                       {new Date(rec.appointment_date).toLocaleString("en-US", {
@@ -235,24 +235,24 @@ export default function SurgeryBookingDetailPage() {
               </div>
 
               {rec.notes && (
-                <div className="bg-white rounded-lg border border-teal-100 px-3 py-2">
-                  <p className="text-xs text-zinc-500 mb-0.5">Doctor&apos;s recommendation note</p>
+                <div className="bg-white dark:bg-zinc-800 rounded-lg border border-teal-100 dark:border-teal-800 px-3 py-2">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-0.5">Doctor&apos;s recommendation note</p>
                   <p className="text-sm text-zinc-700">{rec.notes}</p>
                 </div>
               )}
 
               {rec.prescription && (
                 <div className="space-y-3">
-                  <div className="bg-white rounded-lg border border-teal-100 px-3 py-2">
-                    <p className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Diagnosis</p>
-                    <p className="text-sm text-zinc-800 font-medium">{rec.prescription.diagnosis}</p>
+                  <div className="bg-white dark:bg-zinc-800 rounded-lg border border-teal-100 dark:border-teal-800 px-3 py-2">
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-1">Diagnosis</p>
+                    <p className="text-sm text-zinc-800 dark:text-zinc-200 font-medium">{rec.prescription.diagnosis}</p>
                     {rec.prescription.general_notes && (
                       <p className="text-xs text-zinc-500 mt-1">{rec.prescription.general_notes}</p>
                     )}
                   </div>
 
                   {rec.prescription.medicines.length > 0 && (
-                    <div className="bg-white rounded-lg border border-teal-100 px-3 py-2">
+                    <div className="bg-white dark:bg-zinc-800 rounded-lg border border-teal-100 dark:border-teal-800 px-3 py-2">
                       <p className="text-xs text-zinc-400 uppercase tracking-wide mb-2">Medicines Prescribed</p>
                       <div className="overflow-x-auto">
                         <table className="w-full text-xs">
@@ -288,14 +288,14 @@ export default function SurgeryBookingDetailPage() {
                   )}
 
                   {rec.prescription.tests.length > 0 && (
-                    <div className="bg-white rounded-lg border border-teal-100 px-3 py-2">
+                    <div className="bg-white dark:bg-zinc-800 rounded-lg border border-teal-100 dark:border-teal-800 px-3 py-2">
                       <p className="text-xs text-zinc-400 uppercase tracking-wide mb-2">Tests Recommended</p>
                       <div className="space-y-1">
                         {rec.prescription.tests.map((t, i) => (
                           <div key={i} className="flex items-center gap-2">
                             <span className="text-sm text-zinc-700">{t.test_name}</span>
                             <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
-                              t.urgency === "urgent" ? "bg-red-100 text-red-600" : "bg-zinc-100 text-zinc-500"
+                              t.urgency === "urgent" ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" : "bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
                             }`}>{t.urgency}</span>
                           </div>
                         ))}

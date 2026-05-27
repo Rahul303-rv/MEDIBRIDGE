@@ -150,19 +150,19 @@ export default function DoctorProfilePage() {
 
   if (fetching) {
     return (
-      <main className="min-h-screen bg-zinc-50 p-8">
-        <div className="max-w-2xl mx-auto text-zinc-500 text-sm">Loading profile…</div>
+      <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
+        <div className="max-w-2xl mx-auto text-zinc-500 dark:text-zinc-400 text-sm">Loading profile…</div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Doctor Profile</h1>
-            <p className="text-sm text-zinc-500 mt-0.5">Keep your information up to date.</p>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Doctor Profile</h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Keep your information up to date.</p>
           </div>
           <Link href="/doctor" className="text-sm text-teal-600 hover:underline">← Dashboard</Link>
         </div>
@@ -171,8 +171,8 @@ export default function DoctorProfilePage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
             {/* Personal */}
-            <Card className="border border-zinc-200 shadow-sm">
-              <CardHeader><CardTitle className="text-base">Personal Information</CardTitle></CardHeader>
+            <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm dark:bg-zinc-800">
+              <CardHeader><CardTitle className="text-base dark:text-zinc-100">Personal Information</CardTitle></CardHeader>
               <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="first_name" render={({ field }) => (
                   <FormItem><FormLabel>First name *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
@@ -189,7 +189,7 @@ export default function DoctorProfilePage() {
                     <FormControl>
                       <select
                         {...field}
-                        className="flex h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                        className="flex h-8 w-full rounded-lg border border-input bg-background dark:bg-zinc-800 dark:border-zinc-700 px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                       >
                         {TIMEZONES.map((tz) => (
                           <option key={tz} value={tz}>{tz}</option>
@@ -207,7 +207,7 @@ export default function DoctorProfilePage() {
                         <textarea
                           {...field}
                           rows={3}
-                          className="flex w-full rounded-lg border border-input bg-background px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none"
+                          className="flex w-full rounded-lg border border-input bg-background dark:bg-zinc-800 dark:border-zinc-700 px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none"
                         />
                       </FormControl>
                       <FormMessage />
@@ -218,8 +218,8 @@ export default function DoctorProfilePage() {
             </Card>
 
             {/* Professional */}
-            <Card className="border border-zinc-200 shadow-sm">
-              <CardHeader><CardTitle className="text-base">Professional Details</CardTitle></CardHeader>
+            <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm dark:bg-zinc-800">
+              <CardHeader><CardTitle className="text-base dark:text-zinc-100">Professional Details</CardTitle></CardHeader>
               <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="medical_council_reg_no" render={({ field }) => (
                   <FormItem><FormLabel>Medical council reg. no.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
@@ -244,8 +244,8 @@ export default function DoctorProfilePage() {
 
             {/* Specializations */}
             {specializations.length > 0 && (
-              <Card className="border border-zinc-200 shadow-sm">
-                <CardHeader><CardTitle className="text-base">Specializations</CardTitle></CardHeader>
+              <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm dark:bg-zinc-800">
+                <CardHeader><CardTitle className="text-base dark:text-zinc-100">Specializations</CardTitle></CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
                     {specializations.map((s) => (
@@ -256,7 +256,7 @@ export default function DoctorProfilePage() {
                         className={`px-3 py-1 rounded-full text-sm border transition-colors ${
                           selectedSpecIds.includes(s.id)
                             ? "bg-teal-600 text-white border-teal-600"
-                            : "bg-white text-zinc-700 border-zinc-300 hover:border-teal-400"
+                            : "bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border-zinc-300 dark:border-zinc-700 hover:border-teal-400"
                         }`}
                       >
                         {s.name}
@@ -274,10 +274,10 @@ export default function DoctorProfilePage() {
         </Form>
 
         {/* Education */}
-        <Card className="border border-zinc-200 shadow-sm">
+        <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm dark:bg-zinc-800">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Education</CardTitle>
+              <CardTitle className="text-base dark:text-zinc-100">Education</CardTitle>
               <button
                 type="button"
                 onClick={() => setShowEduForm((v) => !v)}
@@ -289,13 +289,13 @@ export default function DoctorProfilePage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {education.length === 0 && !showEduForm && (
-              <p className="text-sm text-zinc-400">No education entries yet.</p>
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">No education entries yet.</p>
             )}
             {education.map((e) => (
-              <div key={e.id} className="flex items-start justify-between text-sm border border-zinc-100 rounded-lg p-3">
+              <div key={e.id} className="flex items-start justify-between text-sm border border-zinc-100 dark:border-zinc-800 rounded-lg p-3">
                 <div>
-                  <p className="font-medium text-zinc-800">{e.degree}</p>
-                  <p className="text-zinc-500">{e.institution} · {e.year_completed}</p>
+                  <p className="font-medium text-zinc-800 dark:text-zinc-100">{e.degree}</p>
+                  <p className="text-zinc-500 dark:text-zinc-400">{e.institution} · {e.year_completed}</p>
                 </div>
                 <button
                   type="button"
@@ -308,7 +308,7 @@ export default function DoctorProfilePage() {
             ))}
             {showEduForm && (
               <Form {...eduForm}>
-                <form onSubmit={eduForm.handleSubmit(addEducation)} className="space-y-3 border border-zinc-200 rounded-lg p-4">
+                <form onSubmit={eduForm.handleSubmit(addEducation)} className="space-y-3 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <FormField control={eduForm.control} name="degree" render={({ field }) => (
                       <FormItem><FormLabel>Degree</FormLabel><FormControl><Input placeholder="MBBS, MD…" {...field} /></FormControl><FormMessage /></FormItem>

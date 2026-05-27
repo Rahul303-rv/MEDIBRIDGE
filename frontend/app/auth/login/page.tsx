@@ -50,20 +50,20 @@ export default function LoginPage() {
     <div className="space-y-7">
       {/* Header */}
       <div>
-        <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-5">
+        <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-900/30 border border-teal-100 dark:border-teal-800 flex items-center justify-center mb-5">
           <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
           </svg>
         </div>
-        <h1 className="text-2xl font-extrabold text-zinc-900 tracking-tight">Welcome back</h1>
-        <p className="text-zinc-500 text-sm mt-1">Sign in to your MediBridge account</p>
+        <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white tracking-tight">Welcome back</h1>
+        <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Sign in to your MediBridge account</p>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Email */}
         <div>
-          <label className="text-xs font-semibold text-zinc-700 mb-1.5 block">Email address</label>
+          <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 block">Email address</label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -75,8 +75,8 @@ export default function LoginPage() {
               autoComplete="email"
               placeholder="you@example.com"
               {...register("email")}
-              className={`w-full h-11 pl-10 pr-4 rounded-xl border text-sm bg-zinc-50 outline-none transition-colors focus:bg-white focus:border-teal-400 ${
-                errors.email ? "border-red-300 bg-red-50" : "border-zinc-200"
+              className={`w-full h-11 pl-10 pr-4 rounded-xl border text-sm bg-zinc-50 dark:bg-zinc-800 dark:text-white outline-none transition-colors focus:bg-white dark:focus:bg-zinc-700 focus:border-teal-400 ${
+                errors.email ? "border-red-300 bg-red-50" : "border-zinc-200 dark:border-zinc-700"
               }`}
             />
           </div>
@@ -88,7 +88,7 @@ export default function LoginPage() {
         {/* Password */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs font-semibold text-zinc-700">Password</label>
+            <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Password</label>
             <Link href="/auth/forgot-password" className="text-xs text-teal-600 hover:text-teal-700 font-medium transition-colors">
               Forgot password?
             </Link>
@@ -104,14 +104,14 @@ export default function LoginPage() {
               autoComplete="current-password"
               placeholder="••••••••"
               {...register("password")}
-              className={`w-full h-11 pl-10 pr-11 rounded-xl border text-sm bg-zinc-50 outline-none transition-colors focus:bg-white focus:border-teal-400 ${
-                errors.password ? "border-red-300 bg-red-50" : "border-zinc-200"
+              className={`w-full h-11 pl-10 pr-11 rounded-xl border text-sm bg-zinc-50 dark:bg-zinc-800 dark:text-white outline-none transition-colors focus:bg-white dark:focus:bg-zinc-700 focus:border-teal-400 ${
+                errors.password ? "border-red-300 bg-red-50" : "border-zinc-200 dark:border-zinc-700"
               }`}
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
               tabIndex={-1}
             >
               {showPassword ? (
@@ -159,17 +159,17 @@ export default function LoginPage() {
       {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-zinc-100" />
+          <div className="w-full border-t border-zinc-100 dark:border-zinc-800" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white px-3 text-xs text-zinc-400">New to MediBridge?</span>
+          <span className="bg-white dark:bg-zinc-900 px-3 text-xs text-zinc-400 dark:text-zinc-500">New to MediBridge?</span>
         </div>
       </div>
 
       {/* Sign up link */}
       <Link
         href="/auth/signup"
-        className="w-full h-11 rounded-xl border border-zinc-200 text-zinc-700 font-semibold text-sm hover:border-teal-300 hover:text-teal-700 hover:bg-teal-50 transition-colors flex items-center justify-center"
+        className="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-sm hover:border-teal-300 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-900/20 dark:hover:border-teal-700 dark:hover:text-teal-400 transition-colors flex items-center justify-center"
       >
         Create a free account
       </Link>

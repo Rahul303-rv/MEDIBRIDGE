@@ -1,3 +1,5 @@
+import { ThemeToggle } from "@/components/theme-toggle";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex">
@@ -118,16 +120,19 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* ── Right panel — form ── */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-white dark:bg-zinc-900">
         {/* Mobile header */}
-        <div className="lg:hidden px-6 pt-6 pb-4 border-b border-zinc-100">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"/>
-              </svg>
+        <div className="lg:hidden px-6 pt-6 pb-4 border-b border-zinc-100 dark:border-zinc-800">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"/>
+                </svg>
+              </div>
+              <span className="font-extrabold text-zinc-900 dark:text-white text-lg">MediBridge</span>
             </div>
-            <span className="font-extrabold text-zinc-900 text-lg">MediBridge</span>
+            <ThemeToggle />
           </div>
         </div>
 
@@ -140,7 +145,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         {/* Footer */}
         <div className="px-6 pb-6 text-center">
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-zinc-400 dark:text-zinc-600">
             © {new Date().getFullYear()} MediBridge · {" "}
             <a href="#" className="hover:text-teal-600 transition-colors">Privacy Policy</a>
             {" · "}

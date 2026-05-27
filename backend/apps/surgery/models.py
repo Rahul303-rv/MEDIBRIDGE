@@ -103,6 +103,12 @@ class TravelDocument(models.Model):
 
 
 class SurgeryRecommendation(models.Model):
+    STATUS_CHOICES = [
+        ("pending_admin", "Pending Admin Review"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ]
+
     doctor = models.ForeignKey(
         "doctors.DoctorProfile",
         on_delete=models.CASCADE,
@@ -124,6 +130,10 @@ class SurgeryRecommendation(models.Model):
         on_delete=models.CASCADE,
         related_name="recommendations",
     )
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="pending_admin", db_index=True
+    )
+    admin_notes = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

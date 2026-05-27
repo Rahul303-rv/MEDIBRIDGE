@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import TestimonialsSlider from "@/components/testimonials-slider";
 import HeroSection from "@/components/hero-section";
+import HomeNav from "@/app/_components/home-nav";
 
 export const metadata: Metadata = {
   title: "MediBridge — Online Medical Consultations & Surgery Packages",
@@ -88,45 +89,32 @@ const WHY_US = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-zinc-900">
 
       {/* ── Nav ─────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-zinc-100 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-teal-600 tracking-tight">MediBridge</Link>
-          <nav className="flex items-center gap-7">
-            <Link href="/doctors" className="text-sm text-zinc-600 hover:text-teal-600 font-medium transition-colors">Doctors</Link>
-            <Link href="/packages" className="text-sm text-zinc-600 hover:text-teal-600 font-medium transition-colors">Surgery Packages</Link>
-            <Link href="/auth/login" className="text-sm font-medium text-zinc-600 hover:text-teal-600 transition-colors">Login</Link>
-            <Link href="/auth/signup"
-              className="inline-flex items-center justify-center h-9 px-5 rounded-lg bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors shadow-sm">
-              Get Started
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <HomeNav />
 
       {/* ── Hero ────────────────────────────────────────────────────── */}
       <HeroSection />
 
       {/* ── Stats bar ───────────────────────────────────────────────── */}
-      <section className="bg-white border-b border-zinc-100 py-8 px-6">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+      <section className="bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 py-8 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 text-center">
           {STATS.map((s) => (
             <div key={s.label}>
               <p className="text-3xl font-extrabold text-teal-600">{s.value}</p>
-              <p className="text-sm text-zinc-500 mt-0.5">{s.label}</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Find Doctors by Specialty ───────────────────────────────── */}
-      <section className="py-20 px-6 bg-zinc-50">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-zinc-50 dark:bg-zinc-800/50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-zinc-900">Find Doctors by Specialty</h2>
-            <p className="text-zinc-500 mt-3 text-base max-w-xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">Find Doctors by Specialty</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-3 text-base max-w-xl mx-auto">
               Consult with top doctors across various specialties through video consultation or chat
             </p>
           </div>
@@ -135,14 +123,14 @@ export default function HomePage() {
               <Link
                 key={s.name}
                 href="/auth/signup"
-                className="flex items-start gap-4 p-4 rounded-xl bg-white border border-zinc-200 hover:border-teal-400 hover:shadow-md transition-all group"
+                className="flex items-start gap-4 p-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 hover:border-teal-400 hover:shadow-md transition-all group"
               >
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 ${s.color}`}>
                   {s.icon}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-zinc-900 text-sm leading-snug group-hover:text-teal-700 transition-colors">{s.name}</p>
-                  <p className="text-zinc-500 text-xs mt-0.5 leading-snug">{s.desc}</p>
+                  <p className="font-semibold text-zinc-900 dark:text-white text-sm leading-snug group-hover:text-teal-700 transition-colors">{s.name}</p>
+                  <p className="text-zinc-500 dark:text-zinc-400 text-xs mt-0.5 leading-snug">{s.desc}</p>
                 </div>
               </Link>
             ))}
@@ -159,25 +147,25 @@ export default function HomePage() {
       </section>
 
       {/* ── How it works ────────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-white dark:bg-zinc-900">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-zinc-900">How It Works</h2>
-            <p className="text-zinc-500 mt-3 text-base">Get expert medical care in 4 simple steps</p>
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">How It Works</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-3 text-base">Get expert medical care in 4 simple steps</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {STEPS.map((s, i) => (
               <div key={s.n} className="relative">
                 {i < STEPS.length - 1 && (
-                  <div className="hidden lg:block absolute top-6 left-full w-full h-px bg-zinc-200 z-0" style={{ width: "calc(100% - 3rem)" }} />
+                  <div className="hidden lg:block absolute top-6 left-full w-full h-px bg-zinc-200 dark:bg-zinc-700 z-0" style={{ width: "calc(100% - 3rem)" }} />
                 )}
                 <div className="relative z-10 space-y-4">
                   <div className="w-12 h-12 rounded-xl bg-teal-600 text-white flex items-center justify-center text-lg font-bold shadow-sm">
                     {s.n}
                   </div>
                   <div>
-                    <p className="font-bold text-zinc-900">{s.title}</p>
-                    <p className="text-sm text-zinc-500 mt-1 leading-relaxed">{s.desc}</p>
+                    <p className="font-bold text-zinc-900 dark:text-white">{s.title}</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">{s.desc}</p>
                   </div>
                 </div>
               </div>
@@ -187,11 +175,11 @@ export default function HomePage() {
       </section>
 
       {/* ── Why Choose MediBridge ───────────────────────────────────── */}
-      <section className="py-20 px-6 bg-zinc-50">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-zinc-50 dark:bg-zinc-800/50">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-zinc-900">Why Choose MediBridge?</h2>
-            <p className="text-zinc-500 mt-3 text-base max-w-xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">Why Choose MediBridge?</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-3 text-base max-w-xl mx-auto">
               Trusted by patients and healthcare professionals worldwide for reliable medical services
             </p>
           </div>
@@ -199,13 +187,13 @@ export default function HomePage() {
             {WHY_US.map((item) => (
               <div
                 key={item.title}
-                className="p-6 rounded-2xl bg-white border border-zinc-200 hover:border-teal-300 hover:shadow-md transition-all"
+                className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 hover:border-teal-300 hover:shadow-md transition-all"
               >
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4 ${item.color}`}>
                   {item.icon}
                 </div>
-                <h3 className="font-bold text-zinc-900 text-base mb-2">{item.title}</h3>
-                <p className="text-zinc-500 text-sm leading-relaxed">{item.desc}</p>
+                <h3 className="font-bold text-zinc-900 dark:text-white text-base mb-2">{item.title}</h3>
+                <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -215,9 +203,9 @@ export default function HomePage() {
       <TestimonialsSlider />
 
       {/* ── CTA ─────────────────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-gradient-to-br from-teal-600 to-cyan-600">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-to-br from-teal-600 to-cyan-600">
         <div className="max-w-2xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold text-white">Ready to Get Started?</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">Ready to Get Started?</h2>
           <p className="text-teal-100 text-base">Create a free account and book your first consultation in minutes.</p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link href="/auth/signup"
@@ -233,7 +221,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────── */}
-      <footer className="bg-zinc-900 text-zinc-400 py-12 px-6">
+      <footer className="bg-zinc-900 text-zinc-400 py-12 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>

@@ -14,17 +14,17 @@ type FilterTab = "all" | "verified" | "unverified";
 
 function DoctorSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-zinc-200 p-5 animate-pulse">
+    <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-5 animate-pulse">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-zinc-100 shrink-0" />
+          <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-700 shrink-0" />
           <div className="space-y-2">
-            <div className="h-4 bg-zinc-100 rounded w-36" />
-            <div className="h-3 bg-zinc-100 rounded w-48" />
-            <div className="h-3 bg-zinc-100 rounded w-32" />
+            <div className="h-4 bg-zinc-100 dark:bg-zinc-700 rounded w-36" />
+            <div className="h-3 bg-zinc-100 dark:bg-zinc-700 rounded w-48" />
+            <div className="h-3 bg-zinc-100 dark:bg-zinc-700 rounded w-32" />
           </div>
         </div>
-        <div className="w-20 h-9 rounded-xl bg-zinc-100 shrink-0" />
+        <div className="w-20 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-700 shrink-0" />
       </div>
     </div>
   );
@@ -69,13 +69,13 @@ export default function AdminDoctorsPage() {
   };
 
   return (
-    <div className="p-8 space-y-6 max-w-5xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-5xl">
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-zinc-900">Doctors</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">Manage doctor accounts and verification</p>
+          <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white">Doctors</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Manage doctor accounts and verification</p>
         </div>
         <Link
           href="/admin/doctors/invite"
@@ -97,22 +97,18 @@ export default function AdminDoctorsPage() {
               onClick={() => setFilter(tab)}
               className={`p-4 rounded-2xl border text-left transition-all ${
                 filter === tab
-                  ? tab === "unverified"
-                    ? "bg-amber-50 border-amber-200"
-                    : tab === "verified"
-                    ? "bg-emerald-50 border-emerald-200"
-                    : "bg-teal-50 border-teal-200"
-                  : "bg-white border-zinc-200 hover:border-zinc-300"
+                  ? "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-700"
+                  : "bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"
               }`}
             >
               <p className={`text-2xl font-extrabold ${
                 filter === tab
-                  ? tab === "unverified" ? "text-amber-700" : tab === "verified" ? "text-emerald-700" : "text-teal-700"
-                  : "text-zinc-900"
+                  ? "text-teal-700 dark:text-teal-400"
+                  : "text-zinc-900 dark:text-white"
               }`}>
                 {counts[tab]}
               </p>
-              <p className="text-xs font-semibold text-zinc-500 capitalize mt-0.5">{tab}</p>
+              <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 capitalize mt-0.5">{tab}</p>
             </button>
           ))}
         </div>
@@ -124,10 +120,10 @@ export default function AdminDoctorsPage() {
           {[...Array(5)].map((_, i) => <DoctorSkeleton key={i} />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-zinc-200 p-12 text-center">
+        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-12 text-center">
           <p className="text-4xl mb-3">👨‍⚕️</p>
-          <p className="text-zinc-700 font-semibold">No doctors found</p>
-          <p className="text-zinc-400 text-sm mt-1">
+          <p className="text-zinc-700 dark:text-zinc-200 font-semibold">No doctors found</p>
+          <p className="text-zinc-400 dark:text-zinc-500 text-sm mt-1">
             {filter === "unverified" ? "All doctors are verified!" : "Invite a doctor to get started."}
           </p>
           <Link
@@ -148,7 +144,7 @@ export default function AdminDoctorsPage() {
             return (
               <div
                 key={doctor.id}
-                className="bg-white rounded-2xl border border-zinc-200 hover:border-zinc-300 transition-colors p-5"
+                className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 transition-colors p-5"
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 min-w-0">
@@ -159,7 +155,7 @@ export default function AdminDoctorsPage() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-zinc-900">{name}</p>
+                        <p className="font-semibold text-zinc-900 dark:text-white">{name}</p>
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
                           doctor.is_verified
                             ? "bg-emerald-100 text-emerald-700"
@@ -168,9 +164,9 @@ export default function AdminDoctorsPage() {
                           {doctor.is_verified ? "✓ Verified" : "⏳ Pending"}
                         </span>
                       </div>
-                      <p className="text-sm text-zinc-400 mt-0.5 truncate">{doctor.email}</p>
+                      <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-0.5 truncate">{doctor.email}</p>
                       {doctor.specializations.length > 0 && (
-                        <p className="text-xs text-zinc-400 mt-0.5">
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                           {doctor.specializations.map((s) => s.name).join(" · ")}
                         </p>
                       )}

@@ -67,13 +67,13 @@ export default function AdminAuditLogPage() {
   }, [page]);
 
   return (
-    <div className="p-8 space-y-6 max-w-5xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-5xl">
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-zinc-900">Audit Log</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">All tracked admin and system actions</p>
+          <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white">Audit Log</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">All tracked admin and system actions</p>
         </div>
         {data && (
           <span className="text-sm font-medium text-zinc-400">{data.count} entries</span>
@@ -84,49 +84,49 @@ export default function AdminAuditLogPage() {
       {loading ? (
         <AuditSkeleton />
       ) : !data || data.results.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-zinc-200 p-14 text-center">
+        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-14 text-center">
           <p className="text-4xl mb-3">📋</p>
-          <p className="font-semibold text-zinc-700">No audit entries yet</p>
+          <p className="font-semibold text-zinc-700 dark:text-zinc-300">No audit entries yet</p>
           <p className="text-zinc-400 text-sm mt-1">Actions will appear here as they happen.</p>
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm">
+          <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden shadow-sm">
             {data.results.map((entry, idx) => {
               const style = ACTION_STYLES[entry.action];
               return (
                 <div
                   key={entry.id}
-                  className={`flex items-start gap-4 px-6 py-4 hover:bg-zinc-50/60 transition-colors ${
-                    idx !== 0 ? "border-t border-zinc-100" : ""
+                  className={`flex items-start gap-4 px-6 py-4 hover:bg-zinc-50/60 dark:hover:bg-zinc-700/50 transition-colors ${
+                    idx !== 0 ? "border-t border-zinc-100 dark:border-zinc-700" : ""
                   }`}
                 >
                   {/* Icon */}
-                  <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center text-sm shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center text-sm shrink-0 mt-0.5">
                     {style?.icon ?? "⚙️"}
                   </div>
 
                   {/* Body */}
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${style?.badge ?? "bg-zinc-100 text-zinc-600"}`}>
+                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${style?.badge ?? "bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"}`}>
                         {entry.action}
                       </span>
                       {entry.target_type && (
-                        <span className="text-xs text-zinc-400 font-mono">
+                        <span className="text-xs text-zinc-400 dark:text-zinc-500 font-mono">
                           {entry.target_type}
                           {entry.target_id ? ` #${entry.target_id}` : ""}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
                       {entry.actor_email ?? "System"}
                       {entry.ip_address && (
-                        <span className="text-zinc-300 font-mono ml-2">{entry.ip_address}</span>
+                        <span className="text-zinc-300 dark:text-zinc-500 font-mono ml-2">{entry.ip_address}</span>
                       )}
                     </p>
                     {Object.keys(entry.metadata).length > 0 && (
-                      <p className="text-xs text-zinc-400 font-mono truncate">
+                      <p className="text-xs text-zinc-400 dark:text-zinc-500 font-mono truncate">
                         {JSON.stringify(entry.metadata)}
                       </p>
                     )}
@@ -134,12 +134,12 @@ export default function AdminAuditLogPage() {
 
                   {/* Time */}
                   <div className="shrink-0 text-right">
-                    <p className="text-xs text-zinc-400 whitespace-nowrap">
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
                       {new Date(entry.created_at).toLocaleDateString("en-US", {
                         month: "short", day: "numeric",
                       })}
                     </p>
-                    <p className="text-xs text-zinc-300">
+                    <p className="text-xs text-zinc-300 dark:text-zinc-600">
                       {new Date(entry.created_at).toLocaleTimeString("en-US", {
                         hour: "2-digit", minute: "2-digit",
                       })}
@@ -155,15 +155,15 @@ export default function AdminAuditLogPage() {
             <button
               disabled={!data.previous}
               onClick={() => setPage((p) => p - 1)}
-              className="h-9 px-4 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-600 hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="h-9 px-4 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               ← Previous
             </button>
-            <p className="text-sm font-medium text-zinc-400">Page {page}</p>
+            <p className="text-sm font-medium text-zinc-400 dark:text-zinc-500">Page {page}</p>
             <button
               disabled={!data.next}
               onClick={() => setPage((p) => p + 1)}
-              className="h-9 px-4 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-600 hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="h-9 px-4 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Next →
             </button>

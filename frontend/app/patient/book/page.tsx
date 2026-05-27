@@ -20,6 +20,7 @@ export default function BookPage() {
   const [doctor, setDoctor] = useState<DoctorProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     if (!doctorId) { router.replace("/doctors"); return; }
@@ -37,6 +38,7 @@ export default function BookPage() {
 
   async function confirmBooking() {
     if (!doctorId || !start || !end) return;
+    if (submitting || submitted) return;
     setSubmitting(true);
     try {
       const payload: Record<string, unknown> = {
@@ -46,6 +48,7 @@ export default function BookPage() {
       };
       if (intakeId) payload.intake_id = Number(intakeId);
       await api.post("/api/v1/patient/appointments", payload);
+      setSubmitted(true);
       toast.success("Appointment booked successfully.");
       router.push("/patient/appointments");
     } catch (err: unknown) {
@@ -63,13 +66,13 @@ export default function BookPage() {
   }
 
   if (loading) return (
-    <main className="min-h-screen bg-zinc-50 p-8 flex items-center justify-center">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8 flex items-center justify-center">
       <p className="text-sm text-zinc-400">Loading…</p>
     </main>
   );
 
   if (!doctor || !start || !end) return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <p className="text-sm text-red-500">Invalid booking link. <Link href="/doctors" className="underline">Go back</Link>.</p>
     </main>
   );
@@ -78,11 +81,11 @@ export default function BookPage() {
   const endDate = new Date(end);
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <div className="max-w-md mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Confirm Booking</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">Review your appointment details before confirming.</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Confirm Booking</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Review your appointment details before confirming.</p>
         </div>
 
         <Card className="border border-zinc-200 shadow-sm">
@@ -98,7 +101,7 @@ export default function BookPage() {
             {doctor.consultation_fee_usd && (
               <Row label="Fee" value={`$${doctor.consultation_fee_usd} USD`} />
             )}
-            <p className="text-xs text-zinc-400 pt-1">
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 pt-1">
               Times shown in your local timezone. Payment is processed at the time of booking.
             </p>
           </CardContent>
@@ -108,8 +111,8 @@ export default function BookPage() {
           <Button variant="outline" className="flex-1" onClick={() => router.back()} disabled={submitting}>
             Back
           </Button>
-          <Button className="flex-1" onClick={confirmBooking} disabled={submitting}>
-            {submitting ? "Confirming…" : "Confirm & Pay"}
+          <Button className="flex-1" onClick={confirmBooking} disabled={submitting || submitted}>
+            {submitted ? "Confirmed ✓" : submitting ? "Confirming…" : "Confirm & Pay"}
           </Button>
         </div>
       </div>
@@ -120,8 +123,8 @@ export default function BookPage() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between text-sm">
-      <span className="text-zinc-500">{label}</span>
-      <span className="font-medium text-zinc-800">{value}</span>
+      <span className="text-zinc-500 dark:text-zinc-400">{label}</span>
+      <span className="font-medium text-zinc-800 dark:text-zinc-200">{value}</span>
     </div>
   );
 }

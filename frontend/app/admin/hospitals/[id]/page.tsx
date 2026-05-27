@@ -65,63 +65,63 @@ export default function AdminHospitalDetailPage() {
     }
   }
 
-  if (loading) return <main className="min-h-screen bg-zinc-50 p-8"><p className="text-sm text-zinc-400">Loading…</p></main>;
+  if (loading) return <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8"><p className="text-sm text-zinc-400 dark:text-zinc-500">Loading…</p></main>;
   if (!hospital) return (
-    <main className="min-h-screen bg-zinc-50 p-8">
-      <p className="text-sm text-zinc-500">Hospital not found.</p>
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">Hospital not found.</p>
       <Link href="/admin/hospitals" className="text-sm text-teal-600 hover:underline mt-2 block">← Back</Link>
     </main>
   );
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-zinc-900">Edit Hospital</h1>
-          <Link href="/admin/hospitals" className="text-sm text-zinc-500 hover:underline">← Hospitals</Link>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Edit Hospital</h1>
+          <Link href="/admin/hospitals" className="text-sm text-zinc-500 dark:text-zinc-400 hover:underline">← Hospitals</Link>
         </div>
 
-        <Card className="border border-zinc-200 shadow-sm">
+        <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">{hospital.name}</CardTitle>
-            <p className="text-xs text-zinc-400 font-mono">/hospitals/{hospital.slug}</p>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 font-mono">/hospitals/{hospital.slug}</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={save} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Name *</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Name *</label>
                   <input required value={form.name} onChange={field("name")}
                     className="w-full rounded-lg border border-input px-3 py-2 text-sm outline-none focus-visible:border-ring" />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">City *</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">City *</label>
                   <input required value={form.city} onChange={field("city")}
                     className="w-full rounded-lg border border-input px-3 py-2 text-sm outline-none focus-visible:border-ring" />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">State *</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">State *</label>
                   <input required value={form.state} onChange={field("state")}
                     className="w-full rounded-lg border border-input px-3 py-2 text-sm outline-none focus-visible:border-ring" />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Country</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Country</label>
                   <input value={form.country} onChange={field("country")}
                     className="w-full rounded-lg border border-input px-3 py-2 text-sm outline-none focus-visible:border-ring" />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Accreditations</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Accreditations</label>
                   <input placeholder="JCI,NABH" value={form.accreditations} onChange={field("accreditations")}
                     className="w-full rounded-lg border border-input px-3 py-2 text-sm outline-none focus-visible:border-ring" />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Website</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Website</label>
                   <input type="url" value={form.website} onChange={field("website")}
                     className="w-full rounded-lg border border-input px-3 py-2 text-sm outline-none focus-visible:border-ring" />
                 </div>
               </div>
               <div>
-                <label className="text-xs text-zinc-600 mb-1 block">Description *</label>
+                <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Description *</label>
                 <textarea required rows={4} value={form.description} onChange={field("description")}
                   className="w-full rounded-lg border border-input px-3 py-2 text-sm outline-none focus-visible:border-ring" />
               </div>
@@ -129,7 +129,7 @@ export default function AdminHospitalDetailPage() {
                 <input type="checkbox" checked={form.is_partner}
                   onChange={(e) => setForm((f) => ({ ...f, is_partner: e.target.checked }))}
                   className="rounded" />
-                <span className="text-sm text-zinc-700">Partner hospital (visible publicly)</span>
+                <span className="text-sm text-zinc-700 dark:text-zinc-200">Partner hospital (visible publicly)</span>
               </label>
               <div className="flex gap-3 pt-2">
                 <Button type="submit" disabled={saving} size="sm">

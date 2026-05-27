@@ -70,10 +70,10 @@ export default function SignupPage() {
           </svg>
         </div>
         <div>
-          <h2 className="text-2xl font-extrabold text-zinc-900">Check your email</h2>
-          <p className="text-zinc-500 text-sm mt-2 leading-relaxed">
+          <h2 className="text-2xl font-extrabold text-zinc-900 dark:text-white">Check your email</h2>
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-2 leading-relaxed">
             We sent a verification link to{" "}
-            <span className="font-semibold text-zinc-700">{getValues("email")}</span>.
+            <span className="font-semibold text-zinc-700 dark:text-zinc-300">{getValues("email")}</span>.
             <br />Click the link to activate your account.
           </p>
         </div>
@@ -100,20 +100,20 @@ export default function SignupPage() {
     <div className="space-y-7">
       {/* Header */}
       <div>
-        <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-5">
+        <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-900/30 border border-teal-100 dark:border-teal-800 flex items-center justify-center mb-5">
           <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
           </svg>
         </div>
-        <h1 className="text-2xl font-extrabold text-zinc-900 tracking-tight">Create your account</h1>
-        <p className="text-zinc-500 text-sm mt-1">Start your health journey with MediBridge</p>
+        <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white tracking-tight">Create your account</h1>
+        <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Start your health journey with MediBridge</p>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Email */}
         <div>
-          <label className="text-xs font-semibold text-zinc-700 mb-1.5 block">Email address</label>
+          <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 block">Email address</label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -125,8 +125,8 @@ export default function SignupPage() {
               autoComplete="email"
               placeholder="you@example.com"
               {...register("email")}
-              className={`w-full h-11 pl-10 pr-4 rounded-xl border text-sm bg-zinc-50 outline-none transition-colors focus:bg-white focus:border-teal-400 ${
-                errors.email ? "border-red-300 bg-red-50" : "border-zinc-200"
+              className={`w-full h-11 pl-10 pr-4 rounded-xl border text-sm bg-zinc-50 dark:bg-zinc-800 dark:text-white outline-none transition-colors focus:bg-white dark:focus:bg-zinc-700 focus:border-teal-400 ${
+                errors.email ? "border-red-300 bg-red-50" : "border-zinc-200 dark:border-zinc-700"
               }`}
             />
           </div>
@@ -137,7 +137,7 @@ export default function SignupPage() {
 
         {/* Password */}
         <div>
-          <label className="text-xs font-semibold text-zinc-700 mb-1.5 block">Password</label>
+          <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 block">Password</label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -149,14 +149,14 @@ export default function SignupPage() {
               autoComplete="new-password"
               placeholder="Min. 10 characters"
               {...register("password")}
-              className={`w-full h-11 pl-10 pr-11 rounded-xl border text-sm bg-zinc-50 outline-none transition-colors focus:bg-white focus:border-teal-400 ${
-                errors.password ? "border-red-300 bg-red-50" : "border-zinc-200"
+              className={`w-full h-11 pl-10 pr-11 rounded-xl border text-sm bg-zinc-50 dark:bg-zinc-800 dark:text-white outline-none transition-colors focus:bg-white dark:focus:bg-zinc-700 focus:border-teal-400 ${
+                errors.password ? "border-red-300 bg-red-50" : "border-zinc-200 dark:border-zinc-700"
               }`}
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
               tabIndex={-1}
             >
               {showPassword ? (
@@ -179,7 +179,7 @@ export default function SignupPage() {
                   <div
                     key={level}
                     className={`h-1 flex-1 rounded-full transition-colors ${
-                      level <= passwordStrength ? strengthColors[passwordStrength] : "bg-zinc-100"
+                      level <= passwordStrength ? strengthColors[passwordStrength] : "bg-zinc-100 dark:bg-zinc-700"
                     }`}
                   />
                 ))}
@@ -196,7 +196,7 @@ export default function SignupPage() {
 
         {/* Confirm Password */}
         <div>
-          <label className="text-xs font-semibold text-zinc-700 mb-1.5 block">Confirm password</label>
+          <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 block">Confirm password</label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -208,14 +208,14 @@ export default function SignupPage() {
               autoComplete="new-password"
               placeholder="Re-enter your password"
               {...register("confirmPassword")}
-              className={`w-full h-11 pl-10 pr-11 rounded-xl border text-sm bg-zinc-50 outline-none transition-colors focus:bg-white focus:border-teal-400 ${
-                errors.confirmPassword ? "border-red-300 bg-red-50" : "border-zinc-200"
+              className={`w-full h-11 pl-10 pr-11 rounded-xl border text-sm bg-zinc-50 dark:bg-zinc-800 dark:text-white outline-none transition-colors focus:bg-white dark:focus:bg-zinc-700 focus:border-teal-400 ${
+                errors.confirmPassword ? "border-red-300 bg-red-50" : "border-zinc-200 dark:border-zinc-700"
               }`}
             />
             <button
               type="button"
               onClick={() => setShowConfirm((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
               tabIndex={-1}
             >
               {showConfirm ? (
@@ -236,7 +236,7 @@ export default function SignupPage() {
         </div>
 
         {/* Terms */}
-        <p className="text-xs text-zinc-400 leading-relaxed">
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 leading-relaxed">
           By creating an account you agree to our{" "}
           <a href="#" className="text-teal-600 hover:underline">Terms of Service</a>
           {" "}and{" "}
@@ -271,17 +271,17 @@ export default function SignupPage() {
       {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-zinc-100" />
+          <div className="w-full border-t border-zinc-100 dark:border-zinc-800" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white px-3 text-xs text-zinc-400">Already have an account?</span>
+          <span className="bg-white dark:bg-zinc-900 px-3 text-xs text-zinc-400 dark:text-zinc-500">Already have an account?</span>
         </div>
       </div>
 
       {/* Sign in link */}
       <Link
         href="/auth/login"
-        className="w-full h-11 rounded-xl border border-zinc-200 text-zinc-700 font-semibold text-sm hover:border-teal-300 hover:text-teal-700 hover:bg-teal-50 transition-colors flex items-center justify-center"
+        className="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-sm hover:border-teal-300 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-900/20 dark:hover:border-teal-700 dark:hover:text-teal-400 transition-colors flex items-center justify-center"
       >
         Sign in instead
       </Link>

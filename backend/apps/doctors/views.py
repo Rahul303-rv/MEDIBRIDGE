@@ -27,7 +27,12 @@ from .services import get_available_slots
 @api_view(["GET", "PATCH"])
 @permission_classes([IsDoctor])
 def doctor_profile(request):
-    profile = request.user.doctor_profile
+    profile = getattr(request.user, "doctor_profile", None)
+    if profile is None:
+        return Response(
+            {"error": {"code": "profile_not_found", "message": "Doctor profile not found."}},
+            status=status.HTTP_404_NOT_FOUND,
+        )
     if request.method == "GET":
         return Response(DoctorProfileSerializer(profile).data)
     serializer = DoctorProfileSerializer(profile, data=request.data, partial=True)
@@ -75,6 +80,22 @@ def doctor_slots_list(request):
         return Response(DoctorAvailabilitySlotSerializer(profile.slots.all(), many=True).data)
     serializer = DoctorAvailabilitySlotSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
+    d = serializer.validated_data
+    # Idempotency: same doctor + same slot identity already exists → return existing.
+    dup_filter = dict(
+        doctor=profile,
+        slot_type=d["slot_type"],
+        start_time=d["start_time"],
+        end_time=d["end_time"],
+        is_active=True,
+    )
+    if d["slot_type"] == "recurring_weekly":
+        dup_filter["day_of_week"] = d.get("day_of_week")
+    else:
+        dup_filter["specific_date"] = d.get("specific_date")
+    existing = DoctorAvailabilitySlot.objects.filter(**dup_filter).first()
+    if existing:
+        return Response(DoctorAvailabilitySlotSerializer(existing).data, status=status.HTTP_200_OK)
     serializer.save(doctor=profile)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 

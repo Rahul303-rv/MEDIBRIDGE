@@ -93,19 +93,19 @@ export default function SymptomIntakePage() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Request a Consultation</h1>
-            <p className="text-sm text-zinc-500 mt-0.5">
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Request a Consultation</h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
               Describe your symptoms and our team will match you to the right doctor.
             </p>
           </div>
           <Link href="/patient" className="text-sm text-teal-600 hover:underline">← Dashboard</Link>
         </div>
 
-        <Card className="border border-zinc-200 shadow-sm overflow-visible">
+        <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-visible">
           <CardHeader>
             <CardTitle className="text-base">Symptom Information</CardTitle>
           </CardHeader>
@@ -178,7 +178,7 @@ export default function SymptomIntakePage() {
                         {...field}
                       />
                     </FormControl>
-                    <p className="text-xs text-zinc-400">Pre-filled from your profile. Edit as needed.</p>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500">Pre-filled from your profile. Edit as needed.</p>
                     <FormMessage />
                   </FormItem>
                 )} />
@@ -187,7 +187,7 @@ export default function SymptomIntakePage() {
                   const selected = doctors.find((d) => String(d.id) === field.value);
                   return (
                     <FormItem>
-                      <FormLabel>Preferred doctor <span className="text-zinc-400 font-normal">(optional)</span></FormLabel>
+                      <FormLabel>Preferred doctor <span className="text-zinc-400 dark:text-zinc-500 font-normal">(optional)</span></FormLabel>
                       <div ref={dropdownRef} className="relative">
                         <button
                           type="button"
@@ -197,14 +197,14 @@ export default function SymptomIntakePage() {
                           {selected ? (
                             <div className="flex items-center justify-between w-full">
                               <div>
-                                <span className="font-medium text-zinc-900">
+                                <span className="font-medium text-zinc-900 dark:text-white">
                                   Dr. {selected.first_name} {selected.last_name}
                                 </span>
-                                <span className="text-zinc-500 ml-1">
+                                <span className="text-zinc-500 dark:text-zinc-400 ml-1">
                                   — {selected.specializations.map((s) => s.name).join(", ")}
                                 </span>
                                 {selected.education.length > 0 && (
-                                  <span className="text-zinc-400 ml-1 text-xs">
+                                  <span className="text-zinc-400 dark:text-zinc-500 ml-1 text-xs">
                                     · {selected.education[selected.education.length - 1].degree}
                                   </span>
                                 )}
@@ -216,18 +216,18 @@ export default function SymptomIntakePage() {
                               )}
                             </div>
                           ) : (
-                            <span className="text-zinc-500">No preference — let the team decide</span>
+                            <span className="text-zinc-500 dark:text-zinc-400">No preference — let the team decide</span>
                           )}
-                          <svg className="ml-2 h-4 w-4 shrink-0 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="ml-2 h-4 w-4 shrink-0 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
                         </button>
 
                         {doctorDropdownOpen && (
-                          <div className="absolute z-50 w-full mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl max-h-96 overflow-y-auto">
+                          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl max-h-96 overflow-y-auto">
                             {/* No preference option */}
                             <div
-                              className="px-4 py-3 text-sm text-zinc-500 cursor-pointer hover:bg-zinc-50 border-b border-zinc-100"
+                              className="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700 border-b border-zinc-100 dark:border-zinc-800"
                               onClick={() => { field.onChange(""); setDoctorDropdownOpen(false); }}
                             >
                               No preference — let the team decide
@@ -241,23 +241,23 @@ export default function SymptomIntakePage() {
                               return (
                                 <div
                                   key={d.id}
-                                  className={`px-4 py-3.5 cursor-pointer border-b border-zinc-100 last:border-0 hover:bg-teal-50 transition-colors ${isSelected ? "bg-teal-50 border-l-2 border-l-teal-500" : ""}`}
+                                  className={`px-4 py-3.5 cursor-pointer border-b border-zinc-100 dark:border-zinc-800 last:border-0 hover:bg-teal-50 transition-colors ${isSelected ? "bg-teal-50 border-l-2 border-l-teal-500" : ""}`}
                                   onClick={() => { field.onChange(String(d.id)); setDoctorDropdownOpen(false); }}
                                 >
                                   <div className="flex items-center justify-between gap-3">
                                     <div className="min-w-0 flex-1">
                                       <div className="flex items-center gap-1.5">
-                                        <p className="text-sm font-semibold text-zinc-900">
+                                        <p className="text-sm font-semibold text-zinc-900 dark:text-white">
                                           Dr. {d.first_name} {d.last_name}
                                         </p>
                                         {isSelected && (
                                           <span className="text-xs bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-medium">Selected</span>
                                         )}
                                       </div>
-                                      <p className="text-sm text-zinc-600 mt-0.5">
+                                      <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-0.5">
                                         {d.specializations.map((s) => s.name).join(", ")}
                                       </p>
-                                      <p className="text-xs text-zinc-400 mt-0.5">
+                                      <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                                         {highestDegree && <span>{highestDegree}</span>}
                                         {d.years_of_experience && (
                                           <span> · {d.years_of_experience} yrs experience</span>
@@ -269,7 +269,7 @@ export default function SymptomIntakePage() {
                                         <p className="text-base font-bold text-teal-600">
                                           ${Number(d.consultation_fee_usd).toLocaleString()}
                                         </p>
-                                        <p className="text-xs text-zinc-400">per consult</p>
+                                        <p className="text-xs text-zinc-400 dark:text-zinc-500">per consult</p>
                                       </div>
                                     )}
                                   </div>
@@ -292,7 +292,7 @@ export default function SymptomIntakePage() {
           </CardContent>
         </Card>
 
-        <p className="text-xs text-zinc-400 text-center">
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center">
           In a medical emergency, please call your local emergency number immediately.
           MediBridge is not an emergency service.
         </p>

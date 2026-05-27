@@ -89,21 +89,21 @@ export default function HeroSection() {
         </svg>
 
         {/* ── Main content ── */}
-        <div className="relative max-w-7xl mx-auto px-6 py-24 lg:py-20 w-full flex flex-col lg:flex-row items-center gap-14 lg:gap-8">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-24 lg:py-20 w-full flex flex-col lg:flex-row items-center gap-8 lg:gap-8">
 
           {/* Left: Text */}
-          <div className="flex-1 text-center lg:text-left space-y-7 max-w-xl">
-            <div className="fade-up-1 inline-flex items-center gap-2 bg-white/15 text-white text-sm font-medium px-4 py-1.5 rounded-full backdrop-blur-sm border border-white/20">
+          <div className="flex-1 text-center lg:text-left space-y-5 sm:space-y-7 max-w-xl">
+            <div className="fade-up-1 inline-flex items-center gap-2 bg-white/15 text-white text-xs sm:text-sm font-medium px-3 sm:px-4 py-1.5 rounded-full backdrop-blur-sm border border-white/20">
               <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse" />
               Trusted by patients from 30+ countries
             </div>
 
-            <h1 className="fade-up-2 text-4xl sm:text-5xl xl:text-6xl font-extrabold text-white leading-tight tracking-tight">
+            <h1 className="fade-up-2 text-3xl sm:text-5xl xl:text-6xl font-extrabold text-white leading-tight tracking-tight">
               World-Class<br />Medical Care,<br />
               <span className="text-cyan-200">Without Leaving Home</span>
             </h1>
 
-            <p className="fade-up-3 text-lg text-teal-100 leading-relaxed">
+            <p className="fade-up-3 text-base sm:text-lg text-teal-100 leading-relaxed">
               Connect with verified Indian specialists for same-day video consultations
               and affordable all-inclusive surgery packages with full travel support.
             </p>
@@ -130,7 +130,7 @@ export default function HeroSection() {
             </div>
 
             {/* Mini stats */}
-            <div className="fade-up-4 flex flex-wrap gap-5 justify-center lg:justify-start pt-2">
+            <div className="fade-up-4 flex flex-wrap gap-3 sm:gap-5 justify-center lg:justify-start pt-2">
               {[
                 { v: "500+", l: "Verified Doctors" },
                 { v: "50K+", l: "Patients" },

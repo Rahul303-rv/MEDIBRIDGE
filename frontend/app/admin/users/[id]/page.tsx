@@ -50,7 +50,7 @@ function Field({
 }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-zinc-600">{label}</label>
+      <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">{label}</label>
       {children}
     </div>
   );
@@ -115,16 +115,16 @@ export default function AdminUserEditPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
-        <p className="text-sm text-zinc-400">Loading…</p>
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center">
+        <p className="text-sm text-zinc-400 dark:text-zinc-500">Loading…</p>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
-        <p className="text-sm text-zinc-500">User not found.</p>
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">User not found.</p>
       </div>
     );
   }
@@ -133,16 +133,16 @@ export default function AdminUserEditPage() {
   const isDoctor  = user.role === "doctor";
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
 
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Edit User</h1>
-            <p className="text-sm text-zinc-500 mt-0.5">{user.email}</p>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Edit User</h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{user.email}</p>
           </div>
-          <Link href="/admin/users" className="text-sm text-zinc-500 hover:underline">← Users</Link>
+          <Link href="/admin/users" className="text-sm text-zinc-500 dark:text-zinc-400 hover:underline">← Users</Link>
         </div>
 
         {/* Account settings */}
@@ -203,7 +203,7 @@ export default function AdminUserEditPage() {
                 </>
               )}
             </div>
-            <div className="text-xs text-zinc-400 pt-1 space-y-0.5">
+            <div className="text-xs text-zinc-400 dark:text-zinc-500 pt-1 space-y-0.5">
               <p>Joined: {new Date(user.date_joined).toLocaleString()}</p>
               {user.last_login && <p>Last login: {new Date(user.last_login).toLocaleString()}</p>}
             </div>
@@ -307,7 +307,7 @@ export default function AdminUserEditPage() {
 
               {isDoctor && user.specializations && user.specializations.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-zinc-600 mb-1">Specializations</p>
+                  <p className="text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1">Specializations</p>
                   <div className="flex flex-wrap gap-1.5">
                     {user.specializations.map((s) => (
                       <span key={s.id} className="px-2 py-0.5 rounded-full text-xs bg-teal-50 text-teal-700 border border-teal-100">
@@ -332,7 +332,7 @@ export default function AdminUserEditPage() {
         <Card>
           <CardHeader><CardTitle className="text-base text-rose-600">Reset Password</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
               Set a new password for this user. They will need to use it on their next login.
             </p>
             <Field label="New password (min 8 characters)">

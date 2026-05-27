@@ -7,20 +7,20 @@ import { SurgeryPackage } from "@/types/api";
 
 /* Keys match EXACTLY what the API returns (see seed_data.py) */
 const SURGERY_CONFIG: Record<string, { cardBg: string; textColor: string }> = {
-  "Bariatric Surgery":        { cardBg: "bg-orange-100", textColor: "text-orange-700" },
-  "Cardiac Surgery":          { cardBg: "bg-red-100",    textColor: "text-red-700"    },
-  "Dental Surgery":           { cardBg: "bg-blue-100",   textColor: "text-blue-700"   },
-  "ENT Surgery":              { cardBg: "bg-purple-100", textColor: "text-purple-700" },
-  "Eye Surgery":              { cardBg: "bg-cyan-100",   textColor: "text-cyan-700"   },
-  "Gastroenterology Surgery": { cardBg: "bg-amber-100",  textColor: "text-amber-700"  },
-  "Gynecology Surgery":       { cardBg: "bg-pink-100",   textColor: "text-pink-700"   },
-  "Neurosurgery":             { cardBg: "bg-violet-100", textColor: "text-violet-700" },
-  "Oncology Surgery":         { cardBg: "bg-rose-100",   textColor: "text-rose-700"   },
-  "Orthopedic Surgery":       { cardBg: "bg-yellow-100", textColor: "text-yellow-700" },
-  "Pulmonology Surgery":      { cardBg: "bg-sky-100",    textColor: "text-sky-700"    },
-  "Spine Surgery":            { cardBg: "bg-lime-100",   textColor: "text-lime-700"   },
-  "Transplant Surgery":       { cardBg: "bg-green-100",  textColor: "text-green-700"  },
-  "Urology Surgery":          { cardBg: "bg-teal-100",   textColor: "text-teal-700"   },
+  "Bariatric Surgery":        { cardBg: "bg-orange-100 dark:bg-orange-900/30", textColor: "text-orange-700 dark:text-orange-400" },
+  "Cardiac Surgery":          { cardBg: "bg-red-100 dark:bg-red-900/30",       textColor: "text-red-700 dark:text-red-400"       },
+  "Dental Surgery":           { cardBg: "bg-blue-100 dark:bg-blue-900/30",     textColor: "text-blue-700 dark:text-blue-400"     },
+  "ENT Surgery":              { cardBg: "bg-purple-100 dark:bg-purple-900/30", textColor: "text-purple-700 dark:text-purple-400" },
+  "Eye Surgery":              { cardBg: "bg-cyan-100 dark:bg-cyan-900/30",     textColor: "text-cyan-700 dark:text-cyan-400"     },
+  "Gastroenterology Surgery": { cardBg: "bg-amber-100 dark:bg-amber-900/30",   textColor: "text-amber-700 dark:text-amber-400"   },
+  "Gynecology Surgery":       { cardBg: "bg-pink-100 dark:bg-pink-900/30",     textColor: "text-pink-700 dark:text-pink-400"     },
+  "Neurosurgery":             { cardBg: "bg-violet-100 dark:bg-violet-900/30", textColor: "text-violet-700 dark:text-violet-400" },
+  "Oncology Surgery":         { cardBg: "bg-rose-100 dark:bg-rose-900/30",     textColor: "text-rose-700 dark:text-rose-400"     },
+  "Orthopedic Surgery":       { cardBg: "bg-yellow-100 dark:bg-yellow-900/30", textColor: "text-yellow-700 dark:text-yellow-400" },
+  "Pulmonology Surgery":      { cardBg: "bg-sky-100 dark:bg-sky-900/30",       textColor: "text-sky-700 dark:text-sky-400"       },
+  "Spine Surgery":            { cardBg: "bg-lime-100 dark:bg-lime-900/30",     textColor: "text-lime-700 dark:text-lime-400"     },
+  "Transplant Surgery":       { cardBg: "bg-green-100 dark:bg-green-900/30",   textColor: "text-green-700 dark:text-green-400"   },
+  "Urology Surgery":          { cardBg: "bg-teal-100 dark:bg-teal-900/30",     textColor: "text-teal-700 dark:text-teal-400"     },
 };
 
 /* Unique SVG icon per surgery type — keys match API values exactly */
@@ -167,30 +167,30 @@ function getInclusions(pkg: SurgeryPackage): { icon: string; label: string }[] {
 
 function PackageCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden animate-pulse">
-      <div className="h-1 bg-zinc-100" />
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden animate-pulse">
+      <div className="h-1 bg-zinc-100 dark:bg-zinc-800" />
       <div className="p-5 space-y-4">
         <div className="flex items-start gap-3">
-          <div className="w-12 h-12 rounded-xl bg-zinc-100 shrink-0" />
+          <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 bg-zinc-100 rounded w-24" />
-            <div className="h-4 bg-zinc-100 rounded w-3/4" />
-            <div className="h-3 bg-zinc-100 rounded w-1/2" />
+            <div className="h-3 bg-zinc-100 dark:bg-zinc-800 rounded w-24" />
+            <div className="h-4 bg-zinc-100 dark:bg-zinc-800 rounded w-3/4" />
+            <div className="h-3 bg-zinc-100 dark:bg-zinc-800 rounded w-1/2" />
           </div>
         </div>
-        <div className="h-9 bg-zinc-100 rounded" />
+        <div className="h-9 bg-zinc-100 dark:bg-zinc-800 rounded" />
         <div className="flex gap-1.5">
-          <div className="h-5 w-20 bg-zinc-100 rounded-full" />
-          <div className="h-5 w-16 bg-zinc-100 rounded-full" />
+          <div className="h-5 w-20 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
+          <div className="h-5 w-16 bg-zinc-100 dark:bg-zinc-800 rounded-full" />
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <div className="h-14 bg-zinc-100 rounded-xl" />
-          <div className="h-14 bg-zinc-100 rounded-xl" />
-          <div className="h-14 bg-zinc-100 rounded-xl" />
+          <div className="h-14 bg-zinc-100 dark:bg-zinc-800 rounded-xl" />
+          <div className="h-14 bg-zinc-100 dark:bg-zinc-800 rounded-xl" />
+          <div className="h-14 bg-zinc-100 dark:bg-zinc-800 rounded-xl" />
         </div>
         <div className="flex items-center justify-between">
-          <div className="h-8 w-28 bg-zinc-100 rounded" />
-          <div className="h-9 w-28 bg-zinc-100 rounded-xl" />
+          <div className="h-8 w-28 bg-zinc-100 dark:bg-zinc-800 rounded" />
+          <div className="h-9 w-28 bg-zinc-100 dark:bg-zinc-800 rounded-xl" />
         </div>
       </div>
     </div>
@@ -199,10 +199,13 @@ function PackageCardSkeleton() {
 
 function PackageCard({ pkg }: { pkg: SurgeryPackage }) {
   const inclusions = getInclusions(pkg);
-  const cfg = SURGERY_CONFIG[pkg.surgery_type] ?? { cardBg: "bg-zinc-100", textColor: "text-zinc-600" };
+  const cfg = SURGERY_CONFIG[pkg.surgery_type] ?? {
+    cardBg: "bg-zinc-100 dark:bg-zinc-800",
+    textColor: "text-zinc-600 dark:text-zinc-400",
+  };
 
   return (
-    <div className="group bg-white rounded-2xl border border-zinc-200 hover:border-teal-300 hover:shadow-lg transition-all duration-200 flex flex-col overflow-hidden">
+    <div className="group bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-lg transition-all duration-200 flex flex-col overflow-hidden">
       <div className="h-1 bg-gradient-to-r from-teal-400 to-cyan-400" />
       <div className="p-5 flex flex-col flex-1 space-y-4">
 
@@ -214,10 +217,10 @@ function PackageCard({ pkg }: { pkg: SurgeryPackage }) {
             <p className={`text-[10px] font-bold uppercase tracking-widest ${cfg.textColor}`}>
               {pkg.surgery_type}
             </p>
-            <h3 className="font-bold text-zinc-900 text-base leading-snug mt-0.5 group-hover:text-teal-700 transition-colors">
+            <h3 className="font-bold text-zinc-900 dark:text-zinc-100 text-base leading-snug mt-0.5 group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors">
               {pkg.name}
             </h3>
-            <p className="text-xs text-zinc-400 mt-0.5 flex items-center gap-1">
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 flex items-center gap-1">
               <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -228,12 +231,12 @@ function PackageCard({ pkg }: { pkg: SurgeryPackage }) {
           </div>
         </div>
 
-        <p className="text-sm text-zinc-500 leading-relaxed line-clamp-2">{pkg.description}</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">{pkg.description}</p>
 
         <div className="flex flex-wrap gap-1.5">
           {inclusions.map((inc) => (
             <span key={inc.label}
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-700 text-xs font-medium border border-teal-100">
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs font-medium border border-teal-100 dark:border-teal-800">
               {inc.icon} {inc.label}
             </span>
           ))}
@@ -245,19 +248,19 @@ function PackageCard({ pkg }: { pkg: SurgeryPackage }) {
             { val: pkg.hospital_stay_days,  lbl: "In Hospital" },
             { val: pkg.recovery_stay_days,  lbl: "Recovery" },
           ].map(({ val, lbl }) => (
-            <div key={lbl} className="bg-zinc-50 rounded-xl py-3 border border-zinc-100">
-              <p className="text-lg font-extrabold text-zinc-900">{val}</p>
-              <p className="text-[10px] text-zinc-400 mt-0.5 font-semibold uppercase tracking-wide">{lbl}</p>
+            <div key={lbl} className="bg-zinc-50 dark:bg-zinc-800 rounded-xl py-3 border border-zinc-100 dark:border-zinc-700">
+              <p className="text-lg font-extrabold text-zinc-900 dark:text-zinc-100">{val}</p>
+              <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5 font-semibold uppercase tracking-wide">{lbl}</p>
             </div>
           ))}
         </div>
 
         <div className="flex items-center justify-between pt-1 mt-auto">
           <div>
-            <p className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wide">Starting from</p>
-            <p className="text-2xl font-extrabold text-zinc-900">
+            <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-semibold uppercase tracking-wide">Starting from</p>
+            <p className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100">
               ${Number(pkg.price_usd).toLocaleString()}
-              <span className="text-xs font-normal text-zinc-400 ml-1">USD</span>
+              <span className="text-xs font-normal text-zinc-400 dark:text-zinc-500 ml-1">USD</span>
             </p>
           </div>
           <Link href={`/packages/${pkg.slug}`}
@@ -288,29 +291,29 @@ export default function PackagesPage() {
   const filtered = filter ? allPackages.filter((p) => p.surgery_type === filter) : allPackages;
 
   return (
-    <main className="min-h-screen bg-zinc-50">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
 
       {/* Hero */}
       <div className="relative bg-gradient-to-br from-teal-700 via-teal-600 to-cyan-500 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
         <div className="absolute bottom-0 left-20 w-64 h-64 bg-white/5 rounded-full translate-y-24" />
-        <div className="relative max-w-6xl mx-auto px-6 py-16">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 border border-white/20 mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 border border-white/20 mb-4 sm:mb-5">
               <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
               </svg>
               <span className="text-xs font-semibold text-white/90 uppercase tracking-widest">Surgery Tourism</span>
             </div>
-            <h1 className="text-4xl font-extrabold text-white leading-tight">World-Class Surgery Packages</h1>
-            <p className="text-teal-100 mt-3 text-lg leading-relaxed">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">World-Class Surgery Packages</h1>
+            <p className="text-teal-100 mt-2 sm:mt-3 text-sm sm:text-lg leading-relaxed">
               All-inclusive surgical care at India&apos;s top hospitals — bundled with flights, accommodation, visa support, and transfers.
             </p>
-            <div className="flex flex-wrap items-center gap-6 mt-8">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 mt-5 sm:mt-8">
               {["JCI-Accredited Hospitals", "Flight + Hotel Included", "24/7 Coordinator Support"].map((t) => (
                 <div key={t} className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-teal-300" />
-                  <span className="text-sm text-white/80 font-medium">{t}</span>
+                  <span className="text-xs sm:text-sm text-white/80 font-medium">{t}</span>
                 </div>
               ))}
             </div>
@@ -318,16 +321,18 @@ export default function PackagesPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-10 space-y-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
 
         {/* Filter */}
-        <div className="bg-white rounded-2xl border border-zinc-200 p-5">
-          <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Filter by procedure</p>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-5">
+          <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-3">Filter by procedure</p>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFilter("")}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
-                filter === "" ? "bg-teal-600 text-white border-teal-600 shadow-sm" : "bg-white text-zinc-600 border-zinc-200 hover:border-teal-300 hover:text-teal-700"
+                filter === ""
+                  ? "bg-teal-600 text-white border-teal-600 shadow-sm"
+                  : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600 hover:border-teal-300 dark:hover:border-teal-600 hover:text-teal-700 dark:hover:text-teal-400"
               }`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,11 +347,13 @@ export default function PackagesPage() {
               return (
                 <button key={t} onClick={() => setFilter(t)}
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
-                    active ? "bg-teal-600 text-white border-teal-600 shadow-sm" : "bg-white text-zinc-600 border-zinc-200 hover:border-teal-300 hover:text-teal-700"
+                    active
+                      ? "bg-teal-600 text-white border-teal-600 shadow-sm"
+                      : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600 hover:border-teal-300 dark:hover:border-teal-600 hover:text-teal-700 dark:hover:text-teal-400"
                   }`}
                 >
                   <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full shrink-0 ${
-                    active ? "bg-white/20 text-white" : `${cfg?.cardBg ?? "bg-zinc-100"} ${cfg?.textColor ?? "text-zinc-500"}`
+                    active ? "bg-white/20 text-white" : `${cfg?.cardBg ?? "bg-zinc-100 dark:bg-zinc-700"} ${cfg?.textColor ?? "text-zinc-500 dark:text-zinc-400"}`
                   }`}>
                     <SurgeryIcon type={t} className="w-3.5 h-3.5" />
                   </span>
@@ -358,8 +365,8 @@ export default function PackagesPage() {
         </div>
 
         {!loading && (
-          <p className="text-sm text-zinc-500">
-            <span className="font-bold text-zinc-900">{filtered.length}</span> package{filtered.length !== 1 ? "s" : ""} available
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <span className="font-bold text-zinc-900 dark:text-zinc-100">{filtered.length}</span> package{filtered.length !== 1 ? "s" : ""} available
             {filter && ` · ${filter}`}
           </p>
         )}
@@ -369,8 +376,8 @@ export default function PackagesPage() {
             {[...Array(6)].map((_, i) => <PackageCardSkeleton key={i} />)}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-zinc-200 p-16 text-center">
-            <p className="font-bold text-zinc-700 text-lg">No packages found</p>
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-16 text-center">
+            <p className="font-bold text-zinc-700 dark:text-zinc-200 text-lg">No packages found</p>
             <button onClick={() => setFilter("")} className="mt-4 h-10 px-6 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors">
               View All
             </button>

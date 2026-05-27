@@ -17,16 +17,16 @@ const STATUS_STYLES: Record<string, { badge: string; dot: string; label: string 
 
 function BookingSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-zinc-200 p-5 animate-pulse space-y-3">
+    <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-5 animate-pulse space-y-3">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-2 flex-1">
-          <div className="h-4 bg-zinc-100 rounded w-48" />
-          <div className="h-3 bg-zinc-100 rounded w-36" />
-          <div className="h-3 bg-zinc-100 rounded w-56" />
+          <div className="h-4 bg-zinc-100 dark:bg-zinc-700 rounded w-48" />
+          <div className="h-3 bg-zinc-100 dark:bg-zinc-700 rounded w-36" />
+          <div className="h-3 bg-zinc-100 dark:bg-zinc-700 rounded w-56" />
         </div>
         <div className="space-y-2 items-end flex flex-col">
-          <div className="h-6 w-24 bg-zinc-100 rounded-full" />
-          <div className="h-6 w-16 bg-zinc-100 rounded-lg" />
+          <div className="h-6 w-24 bg-zinc-100 dark:bg-zinc-700 rounded-full" />
+          <div className="h-6 w-16 bg-zinc-100 dark:bg-zinc-700 rounded-lg" />
         </div>
       </div>
     </div>
@@ -47,13 +47,13 @@ export default function SurgeryBookingsPage() {
   const past   = bookings.filter((b) => ["completed", "cancelled"].includes(b.status));
 
   return (
-    <div className="p-8 space-y-6 max-w-4xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-4xl">
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-zinc-900">Surgery Bookings</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">Your all-inclusive surgery package bookings</p>
+          <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white">Surgery Bookings</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Your all-inclusive surgery package bookings</p>
         </div>
         <Link
           href="/packages"
@@ -68,10 +68,10 @@ export default function SurgeryBookingsPage() {
           {[...Array(3)].map((_, i) => <BookingSkeleton key={i} />)}
         </div>
       ) : bookings.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-zinc-200 p-14 text-center">
+        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-14 text-center">
           <p className="text-5xl mb-4">✂️</p>
-          <p className="font-bold text-zinc-700 text-lg">No surgery bookings</p>
-          <p className="text-zinc-400 text-sm mt-2 max-w-xs mx-auto">
+          <p className="font-bold text-zinc-700 dark:text-zinc-200 text-lg">No surgery bookings</p>
+          <p className="text-zinc-400 dark:text-zinc-500 text-sm mt-2 max-w-xs mx-auto">
             Browse our all-inclusive surgery packages with flights, hotel, and full support included.
           </p>
           <Link
@@ -88,7 +88,7 @@ export default function SurgeryBookingsPage() {
             <section className="space-y-3">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-teal-400" />
-                <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Active Bookings</h2>
+                <h2 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Active Bookings</h2>
               </div>
               {active.map((b) => <BookingCard key={b.id} booking={b} />)}
             </section>
@@ -98,7 +98,7 @@ export default function SurgeryBookingsPage() {
             <section className="space-y-3">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-zinc-300" />
-                <h2 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Past Bookings</h2>
+                <h2 className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Past Bookings</h2>
               </div>
               {past.map((b) => <BookingCard key={b.id} booking={b} />)}
             </section>
@@ -112,7 +112,7 @@ export default function SurgeryBookingsPage() {
 function BookingCard({ booking: b }: { booking: Booking }) {
   const sta = STATUS_STYLES[b.status];
   return (
-    <div className="bg-white rounded-2xl border border-zinc-200 hover:border-teal-300 hover:shadow-sm transition-all p-5">
+    <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:border-teal-300 hover:shadow-sm transition-all p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4 min-w-0">
           {/* Icon */}
@@ -120,14 +120,14 @@ function BookingCard({ booking: b }: { booking: Booking }) {
             ✂️
           </div>
           <div className="min-w-0">
-            <p className="font-bold text-zinc-900 text-base">{b.package_name}</p>
-            <p className="text-sm text-zinc-500 mt-0.5">{b.hospital_name}</p>
+            <p className="font-bold text-zinc-900 dark:text-white text-base">{b.package_name}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{b.hospital_name}</p>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
-              <span className="text-xs text-zinc-400 capitalize">
+              <span className="text-xs text-zinc-400 dark:text-zinc-500 capitalize">
                 {b.surgery_type.replace(/_/g, " ")}
               </span>
-              <span className="text-zinc-200 text-xs">·</span>
-              <span className="text-xs text-zinc-400">
+              <span className="text-zinc-200 dark:text-zinc-700 text-xs">·</span>
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">
                 Tentative: {new Date(b.tentative_date).toLocaleDateString("en-US", {
                   year: "numeric", month: "short", day: "numeric",
                 })}

@@ -11,6 +11,7 @@ from apps.core.permissions import IsAdmin, IsDoctor, IsPatient
 
 from .models import PatientTravelInfo, SurgeryPackageBooking, SurgeryRecommendation, TravelDocument
 from .serializers import (
+    AdminSurgeryRecommendationSerializer,
     SurgeryBookingCreateSerializer,
     SurgeryBookingDetailSerializer,
     SurgeryBookingListSerializer,
@@ -68,6 +69,31 @@ def booking_list(request):
     ser = SurgeryBookingCreateSerializer(data=request.data, context={})
     ser.is_valid(raise_exception=True)
     pkg = ser.context["package"]
+
+    # Block booking if a non-approved recommendation exists for this patient+package
+    recommendation = SurgeryRecommendation.objects.filter(patient=profile, package=pkg).first()
+    if recommendation is not None:
+        if recommendation.status == "pending_admin":
+            return _err(
+                "pending_admin_approval",
+                "This surgery is awaiting admin approval. You will be notified once approved.",
+                403,
+            )
+        if recommendation.status == "rejected":
+            return _err(
+                "recommendation_rejected",
+                "This surgery recommendation was not approved by the admin.",
+                403,
+            )
+
+    # Idempotency: resume existing non-terminal booking instead of creating a duplicate
+    existing = SurgeryPackageBooking.objects.filter(
+        patient=profile,
+        package=pkg,
+        status__in=["info_pending", "payment_pending", "confirmed"],
+    ).order_by("-created_at").first()
+    if existing:
+        return Response(SurgeryBookingDetailSerializer(existing).data, status=status.HTTP_200_OK)
 
     booking = SurgeryPackageBooking.objects.create(
         patient=profile,
@@ -387,6 +413,18 @@ def doctor_surgery_recommendations(request):
 
     ser = SurgeryRecommendationCreateSerializer(data=request.data, context={"doctor": doctor})
     ser.is_valid(raise_exception=True)
+    appt = ser.validated_data["appointment"]
+    pkg = ser.validated_data["package"]
+    # Idempotency: update notes if duplicate instead of creating another record
+    existing = SurgeryRecommendation.objects.filter(
+        doctor=doctor, appointment=appt, package=pkg
+    ).first()
+    if existing:
+        new_notes = ser.validated_data.get("notes", "")
+        if new_notes and new_notes != existing.notes:
+            existing.notes = new_notes
+            existing.save(update_fields=["notes"])
+        return Response(SurgeryRecommendationSerializer(existing).data, status=status.HTTP_200_OK)
     rec = ser.save()
     return Response(SurgeryRecommendationSerializer(rec).data, status=status.HTTP_201_CREATED)
 
@@ -409,3 +447,42 @@ def patient_surgery_recommendations(request):
         item["booking_status"] = booking.status if booking else None
         result.append(item)
     return Response(result)
+
+
+# ── Admin: Surgery Recommendations ───────────────────────────────────────────
+
+@api_view(["GET"])
+@permission_classes([IsAdmin])
+def admin_surgery_recommendation_list(request):
+    status_filter = request.query_params.get("status")
+    qs = SurgeryRecommendation.objects.select_related(
+        "doctor", "patient__user", "package__hospital", "appointment"
+    ).order_by("-created_at")
+    if status_filter:
+        qs = qs.filter(status=status_filter)
+    return Response(AdminSurgeryRecommendationSerializer(qs, many=True).data)
+
+
+@api_view(["GET", "PATCH"])
+@permission_classes([IsAdmin])
+def admin_surgery_recommendation_detail(request, pk):
+    try:
+        rec = SurgeryRecommendation.objects.select_related(
+            "doctor", "patient__user", "package__hospital", "appointment"
+        ).get(pk=pk)
+    except SurgeryRecommendation.DoesNotExist:
+        return _err("not_found", "Recommendation not found.", 404)
+
+    if request.method == "PATCH":
+        valid_statuses = ["pending_admin", "approved", "rejected"]
+        new_status = request.data.get("status")
+        admin_notes = request.data.get("admin_notes")
+        if new_status and new_status not in valid_statuses:
+            return _err("invalid_status", f"Status must be one of: {', '.join(valid_statuses)}")
+        if new_status:
+            rec.status = new_status
+        if admin_notes is not None:
+            rec.admin_notes = admin_notes
+        rec.save()
+
+    return Response(AdminSurgeryRecommendationSerializer(rec).data)

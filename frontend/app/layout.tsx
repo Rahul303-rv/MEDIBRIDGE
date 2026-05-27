@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "MediBridge — Online Medical Consultations & Surgery Packages",
@@ -15,12 +16,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
-        <AuthProvider>
-          {children}
-          <Toaster richColors position="top-right" />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+            <Toaster richColors position="top-right" />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

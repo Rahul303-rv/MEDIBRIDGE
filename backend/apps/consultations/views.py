@@ -126,6 +126,15 @@ def admin_intake_match(request, pk):
     doctor = serializer.validated_data["doctor_id"]
     notes = serializer.validated_data.get("admin_notes", "")
 
+    # Idempotency: if intake is already matched to the same doctor with an
+    # active proposed appointment, return without re-doing work (prevents
+    # double-click from cancelling+recreating the existing proposed appointment
+    # and resending notification emails).
+    if (intake.status == "matched"
+            and intake.matched_doctor_id == doctor.id
+            and Appointment.objects.filter(intake=intake, status="proposed").exists()):
+        return Response(AdminIntakeSerializer(intake).data)
+
     intake.matched_doctor = doctor
     intake.matched_by = request.user
     intake.matched_at = timezone.now()
@@ -207,9 +216,24 @@ def patient_appointment_list(request):
     start, end = d["scheduled_start"], d["scheduled_end"]
 
     with transaction.atomic():
+        # Idempotency: if this patient already booked this doctor at this exact slot,
+        # return the existing appointment instead of creating a duplicate (handles
+        # double-click, back-navigation, and accidental refresh re-submits).
+        existing = Appointment.objects.select_for_update().filter(
+            patient=profile,
+            doctor=doctor,
+            scheduled_start=start,
+            scheduled_end=end,
+            status__in=["proposed", "scheduled", "in_progress"],
+        ).first()
+        if existing:
+            return Response(AppointmentSerializer(existing).data, status=status.HTTP_200_OK)
+
+        # Doctor-side conflict: anyone else already in this slot? Include "proposed"
+        # so admin-matched appointments aren't ignored.
         conflict = Appointment.objects.select_for_update().filter(
             doctor=doctor,
-            status__in=["scheduled", "in_progress"],
+            status__in=["proposed", "scheduled", "in_progress"],
             scheduled_start__lt=end,
             scheduled_end__gt=start,
         ).exists()
@@ -319,6 +343,24 @@ def doctor_appointment_status(request, pk):
         fields.append("completed_at")
     appt.save(update_fields=fields)
     return Response(DoctorAppointmentSerializer(appt).data)
+
+
+@api_view(["GET"])
+@permission_classes([IsDoctor])
+def doctor_appointment_patient_profile(request, pk):
+    from apps.patients.serializers import PatientProfileForDoctorSerializer
+    try:
+        appt = Appointment.objects.select_related(
+            "patient__user"
+        ).prefetch_related("patient__medical_reports").get(
+            pk=pk, doctor=request.user.doctor_profile
+        )
+    except Appointment.DoesNotExist:
+        return Response(
+            {"error": {"code": "not_found", "message": "Not found."}},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    return Response(PatientProfileForDoctorSerializer(appt.patient).data)
 
 
 @api_view(["POST"])

@@ -95,69 +95,69 @@ export default function AdminPackageDetailPage() {
 
   const inputCls = "w-full rounded-lg border border-input px-3 py-2 text-sm outline-none focus-visible:border-ring";
 
-  if (loading) return <main className="min-h-screen bg-zinc-50 p-8"><p className="text-sm text-zinc-400">Loading…</p></main>;
+  if (loading) return <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8"><p className="text-sm text-zinc-400 dark:text-zinc-500">Loading…</p></main>;
   if (!pkg) return (
-    <main className="min-h-screen bg-zinc-50 p-8">
-      <p className="text-sm text-zinc-500">Package not found.</p>
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">Package not found.</p>
       <Link href="/admin/packages" className="text-sm text-teal-600 hover:underline mt-2 block">← Back</Link>
     </main>
   );
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-zinc-900">Edit Package</h1>
-          <Link href="/admin/packages" className="text-sm text-zinc-500 hover:underline">← Packages</Link>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Edit Package</h1>
+          <Link href="/admin/packages" className="text-sm text-zinc-500 dark:text-zinc-400 hover:underline">← Packages</Link>
         </div>
 
-        <Card className="border border-zinc-200 shadow-sm">
+        <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">{pkg.name}</CardTitle>
-            <p className="text-xs text-zinc-400 font-mono">/{pkg.slug}</p>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 font-mono">/{pkg.slug}</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={save} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Hospital *</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Hospital *</label>
                   <select required value={form.hospital} onChange={field("hospital")} className={inputCls}>
                     {hospitals.map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Package Name *</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Package Name *</label>
                   <input required value={form.name} onChange={field("name")} className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Surgery Type *</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Surgery Type *</label>
                   <input required value={form.surgery_type} onChange={field("surgery_type")} className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Price (USD) *</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Price (USD) *</label>
                   <input required type="number" step="0.01" min="0" value={form.price_usd} onChange={field("price_usd")} className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Total Duration (days) *</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Total Duration (days) *</label>
                   <input required type="number" min="1" value={form.total_duration_days} onChange={field("total_duration_days")} className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Hospital Stay (days) *</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Hospital Stay (days) *</label>
                   <input required type="number" min="1" value={form.hospital_stay_days} onChange={field("hospital_stay_days")} className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Recovery Stay (days) *</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Recovery Stay (days) *</label>
                   <input required type="number" min="0" value={form.recovery_stay_days} onChange={field("recovery_stay_days")} className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Flight Class</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Flight Class</label>
                   <select value={form.flight_class} onChange={field("flight_class")} className={inputCls}>
                     <option value="economy">Economy</option>
                     <option value="business">Business</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Accommodation Type</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Accommodation Type</label>
                   <select value={form.accommodation_type} onChange={field("accommodation_type")} className={inputCls}>
                     <option value="hotel_3star">3-Star Hotel</option>
                     <option value="hotel_4star">4-Star Hotel</option>
@@ -166,16 +166,16 @@ export default function AdminPackageDetailPage() {
                 </div>
               </div>
               <div>
-                <label className="text-xs text-zinc-600 mb-1 block">Description *</label>
+                <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Description *</label>
                 <textarea required rows={4} value={form.description} onChange={field("description")} className={inputCls} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Inclusions (one per line)</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Inclusions (one per line)</label>
                   <textarea rows={5} value={form.inclusions_text} onChange={field("inclusions_text")} className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-600 mb-1 block">Exclusions (one per line)</label>
+                  <label className="text-xs text-zinc-600 dark:text-zinc-300 mb-1 block">Exclusions (one per line)</label>
                   <textarea rows={5} value={form.exclusions_text} onChange={field("exclusions_text")} className={inputCls} />
                 </div>
               </div>
@@ -183,12 +183,12 @@ export default function AdminPackageDetailPage() {
                 {(["includes_flight", "includes_visa_assistance", "includes_accommodation", "includes_transport", "includes_meals"] as const).map((k) => (
                   <label key={k} className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={form[k] as boolean} onChange={check(k)} className="rounded" />
-                    <span className="text-sm text-zinc-700">{k.replace("includes_", "").replace("_", " ")}</span>
+                    <span className="text-sm text-zinc-700 dark:text-zinc-200">{k.replace("includes_", "").replace("_", " ")}</span>
                   </label>
                 ))}
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={form.is_active} onChange={check("is_active")} className="rounded" />
-                  <span className="text-sm text-zinc-700">Active (visible publicly)</span>
+                  <span className="text-sm text-zinc-700 dark:text-zinc-200">Active (visible publicly)</span>
                 </label>
               </div>
               <div className="flex gap-3 pt-2">

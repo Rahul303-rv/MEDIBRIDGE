@@ -112,15 +112,15 @@ function InfoRow({ label, value }: { label: string; value?: string | number | nu
   if (!value && value !== 0) return null;
   return (
     <div className="flex gap-2 text-sm">
-      <span className="text-zinc-400 w-44 shrink-0">{label}</span>
-      <span className="text-zinc-800 break-words">{value}</span>
+      <span className="text-zinc-400 dark:text-zinc-500 w-44 shrink-0">{label}</span>
+      <span className="text-zinc-800 dark:text-zinc-100 break-words">{value}</span>
     </div>
   );
 }
 
 function SectionDivider({ title }: { title: string }) {
   return (
-    <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide pt-2 pb-1 border-t border-zinc-100 mt-3">
+    <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide pt-2 pb-1 border-t border-zinc-100 dark:border-zinc-800 mt-3">
       {title}
     </p>
   );
@@ -201,10 +201,10 @@ export default function AdminSurgeryBookingDetailPage() {
     }
   }
 
-  if (loading) return <main className="min-h-screen bg-zinc-50 p-8"><p className="text-sm text-zinc-400">Loading…</p></main>;
+  if (loading) return <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8"><p className="text-sm text-zinc-400 dark:text-zinc-500">Loading…</p></main>;
   if (!booking) return (
-    <main className="min-h-screen bg-zinc-50 p-8">
-      <p className="text-sm text-zinc-500">Booking not found.</p>
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">Booking not found.</p>
       <Link href="/admin/bookings?type=surgery" className="text-sm text-teal-600 hover:underline mt-2 block">← Back</Link>
     </main>
   );
@@ -213,24 +213,24 @@ export default function AdminSurgeryBookingDetailPage() {
   const isCancelled = booking.status === "cancelled";
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
       <div className="max-w-3xl mx-auto space-y-6">
 
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm text-zinc-500">Surgery Booking #{booking.id}</p>
-            <h1 className="text-2xl font-bold text-zinc-900">{booking.package_name}</h1>
-            <p className="text-sm text-zinc-500">{booking.hospital_name}, {booking.hospital_city}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">Surgery Booking #{booking.id}</p>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{booking.package_name}</h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{booking.hospital_name}, {booking.hospital_city}</p>
           </div>
           <div className="flex items-center gap-3">
             <Badge className={STATUS_COLORS[booking.status] ?? ""}>{booking.status.replace(/_/g, " ")}</Badge>
-            <Link href="/admin/bookings?type=surgery" className="text-sm text-zinc-500 hover:underline">← All Bookings</Link>
+            <Link href="/admin/bookings?type=surgery" className="text-sm text-zinc-500 dark:text-zinc-400 hover:underline">← All Bookings</Link>
           </div>
         </div>
 
         {/* Booking Info */}
-        <Card className="border border-zinc-200 shadow-sm">
+        <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
           <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Booking Details</CardTitle></CardHeader>
           <CardContent className="space-y-2">
             <InfoRow label="Surgery Type" value={booking.surgery_type} />
@@ -243,13 +243,13 @@ export default function AdminSurgeryBookingDetailPage() {
         </Card>
 
         {/* Patient Details — expandable */}
-        <Card className="border border-zinc-200 shadow-sm">
+        <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-sm font-semibold">Patient</CardTitle>
-                <p className="text-sm text-zinc-700 mt-0.5">{booking.patient_name}</p>
-                <p className="text-xs text-zinc-400">{booking.patient_email}</p>
+                <p className="text-sm text-zinc-700 dark:text-zinc-200 mt-0.5">{booking.patient_name}</p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500">{booking.patient_email}</p>
               </div>
               <Button variant="outline" size="sm" className="text-xs"
                 onClick={() => loadPatient(booking.patient_user_id)}>
@@ -259,9 +259,9 @@ export default function AdminSurgeryBookingDetailPage() {
           </CardHeader>
 
           {patientOpen && (
-            <CardContent className="border-t border-zinc-100 pt-4 space-y-2">
+            <CardContent className="border-t border-zinc-100 dark:border-zinc-800 pt-4 space-y-2">
               {patientLoading ? (
-                <p className="text-sm text-zinc-400">Loading patient profile…</p>
+                <p className="text-sm text-zinc-400 dark:text-zinc-500">Loading patient profile…</p>
               ) : patient ? (
                 <>
                   <SectionDivider title="Personal" />
@@ -304,12 +304,12 @@ export default function AdminSurgeryBookingDetailPage() {
 
         {/* Admin Controls */}
         {!isCancelled && (
-          <Card className="border border-zinc-200 shadow-sm">
+          <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Manage Booking</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-zinc-500 mb-1 block">Status</label>
+                  <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Status</label>
                   <select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring">
                     {ALL_STATUSES.map((s) => (
@@ -318,7 +318,7 @@ export default function AdminSurgeryBookingDetailPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-500 mb-1 block">Tentative Date</label>
+                  <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Tentative Date</label>
                   <input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)}
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring" />
                 </div>
@@ -338,25 +338,25 @@ export default function AdminSurgeryBookingDetailPage() {
         )}
 
         {isCancelled && (
-          <Card className="border border-red-200 bg-red-50 shadow-sm">
+          <Card className="border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 shadow-sm">
             <CardContent className="pt-4 pb-4">
-              <p className="text-sm text-red-700 font-medium">This booking has been cancelled.</p>
+              <p className="text-sm text-red-700 dark:text-red-400 font-medium">This booking has been cancelled.</p>
             </CardContent>
           </Card>
         )}
 
         {/* Consultation History */}
         {booking.recommendation && (
-          <Card className="border border-teal-200 shadow-sm bg-teal-50">
+          <Card className="border border-teal-200 dark:border-teal-800 shadow-sm bg-teal-50 dark:bg-teal-900/30">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-teal-800">Consultation History</CardTitle>
+              <CardTitle className="text-sm font-semibold text-teal-800 dark:text-teal-400">Consultation History</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-zinc-900">{booking.recommendation.doctor_name}</p>
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-white">{booking.recommendation.doctor_name}</p>
                   {booking.recommendation.appointment_date && (
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
                       {new Date(booking.recommendation.appointment_date).toLocaleString("en-US", {
                         weekday: "long", month: "long", day: "numeric", year: "numeric",
                       })}
@@ -372,24 +372,24 @@ export default function AdminSurgeryBookingDetailPage() {
               </div>
 
               {booking.recommendation.notes && (
-                <div className="bg-white rounded-lg border border-teal-100 px-3 py-2">
+                <div className="bg-white dark:bg-zinc-800 rounded-lg border border-teal-100 dark:border-teal-800 px-3 py-2">
                   <p className="text-xs text-zinc-400 mb-0.5">Recommendation note</p>
-                  <p className="text-sm text-zinc-700">{booking.recommendation.notes}</p>
+                  <p className="text-sm text-zinc-700 dark:text-zinc-300">{booking.recommendation.notes}</p>
                 </div>
               )}
 
               {booking.recommendation.prescription && (
-                <div className="bg-white rounded-lg border border-teal-100 px-3 py-3 space-y-2">
+                <div className="bg-white dark:bg-zinc-800 rounded-lg border border-teal-100 dark:border-teal-800 px-3 py-3 space-y-2">
                   <p className="text-xs text-zinc-400 uppercase tracking-wide">Prescription Summary</p>
-                  <p className="text-sm font-semibold text-zinc-800">{booking.recommendation.prescription.diagnosis}</p>
+                  <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{booking.recommendation.prescription.diagnosis}</p>
                   {booking.recommendation.prescription.general_notes && (
-                    <p className="text-xs text-zinc-500">{booking.recommendation.prescription.general_notes}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{booking.recommendation.prescription.general_notes}</p>
                   )}
                   {booking.recommendation.prescription.medicines.length > 0 && (
                     <div>
                       <p className="text-xs text-zinc-400 mb-1">Medicines</p>
                       {booking.recommendation.prescription.medicines.map((m, i) => (
-                        <p key={i} className="text-xs text-zinc-700">
+                        <p key={i} className="text-xs text-zinc-700 dark:text-zinc-300">
                           {m.medicine_name} {m.dosage && `(${m.dosage})`} — {m.duration_days} days
                         </p>
                       ))}
@@ -399,7 +399,7 @@ export default function AdminSurgeryBookingDetailPage() {
                     <div>
                       <p className="text-xs text-zinc-400 mb-1">Tests</p>
                       {booking.recommendation.prescription.tests.map((t, i) => (
-                        <p key={i} className="text-xs text-zinc-700">
+                        <p key={i} className="text-xs text-zinc-700 dark:text-zinc-300">
                           {t.test_name} <span className={`font-medium ${t.urgency === "urgent" ? "text-red-500" : "text-zinc-400"}`}>({t.urgency})</span>
                         </p>
                       ))}
@@ -413,7 +413,7 @@ export default function AdminSurgeryBookingDetailPage() {
 
         {/* Travel Info */}
         {booking.travel_info && (
-          <Card className="border border-zinc-200 shadow-sm">
+          <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Travel Information</CardTitle></CardHeader>
             <CardContent className="space-y-2">
               <InfoRow label="Passport Number" value={booking.travel_info.passport_number} />
@@ -443,19 +443,19 @@ export default function AdminSurgeryBookingDetailPage() {
         )}
 
         {/* Documents */}
-        <Card className="border border-zinc-200 shadow-sm">
+        <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
           <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Uploaded Documents</CardTitle></CardHeader>
           <CardContent>
             {booking.documents.length === 0 ? (
-              <p className="text-sm text-zinc-400">No documents uploaded.</p>
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">No documents uploaded.</p>
             ) : (
               <div className="space-y-2">
                 {booking.documents.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between bg-zinc-50 rounded-lg px-4 py-3">
+                  <div key={doc.id} className="flex items-center justify-between bg-zinc-50 dark:bg-zinc-700/50 rounded-lg px-4 py-3">
                     <div>
-                      <p className="text-sm font-medium text-zinc-800 capitalize">{doc.doc_type.replace(/_/g, " ")}</p>
-                      {doc.doc_number && <p className="text-xs text-zinc-400">#{doc.doc_number}</p>}
-                      <p className="text-xs text-zinc-400">{new Date(doc.uploaded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+                      <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100 capitalize">{doc.doc_type.replace(/_/g, " ")}</p>
+                      {doc.doc_number && <p className="text-xs text-zinc-400 dark:text-zinc-500">#{doc.doc_number}</p>}
+                      <p className="text-xs text-zinc-400 dark:text-zinc-500">{new Date(doc.uploaded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       {doc.is_verified && (

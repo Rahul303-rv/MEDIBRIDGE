@@ -28,17 +28,17 @@ function StatCard({
 }) {
   return (
     <Link href={href}>
-      <div className={`bg-white rounded-2xl border p-6 hover:shadow-md transition-all cursor-pointer group relative overflow-hidden ${
-        alert ? "border-amber-200 hover:border-amber-300" : "border-zinc-200 hover:border-zinc-300"
+      <div className={`bg-white dark:bg-zinc-800 rounded-2xl border p-6 hover:shadow-md transition-all cursor-pointer group relative overflow-hidden ${
+        alert ? "border-amber-200 hover:border-amber-300" : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300"
       }`}>
         {alert && (
           <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-400 to-orange-400" />
         )}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest">{label}</p>
-            <p className="text-3xl font-extrabold text-zinc-900 mt-2 group-hover:text-zinc-800">{value}</p>
-            {sub && <p className="text-xs text-zinc-400 mt-1">{sub}</p>}
+            <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{label}</p>
+            <p className="text-3xl font-extrabold text-zinc-900 dark:text-white mt-2 group-hover:text-zinc-800 dark:group-hover:text-zinc-100">{value}</p>
+            {sub && <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">{sub}</p>}
           </div>
           <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${accent}`}>
             {icon}
@@ -51,14 +51,14 @@ function StatCard({
 
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-2xl border border-zinc-200 p-6 animate-pulse">
+    <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 animate-pulse">
       <div className="flex items-start justify-between">
         <div className="space-y-3 flex-1">
-          <div className="h-2.5 bg-zinc-100 rounded w-24" />
-          <div className="h-8 bg-zinc-100 rounded w-16" />
-          <div className="h-2 bg-zinc-100 rounded w-32" />
+          <div className="h-2.5 bg-zinc-100 dark:bg-zinc-700 rounded w-24" />
+          <div className="h-8 bg-zinc-100 dark:bg-zinc-700 rounded w-16" />
+          <div className="h-2 bg-zinc-100 dark:bg-zinc-700 rounded w-32" />
         </div>
-        <div className="w-12 h-12 rounded-xl bg-zinc-100 shrink-0" />
+        <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-700 shrink-0" />
       </div>
     </div>
   );
@@ -68,7 +68,7 @@ const QUICK_ACTIONS = [
   { href: "/admin/intakes", label: "Review Intakes", desc: "Match patients to doctors", icon: "📋", color: "border-amber-200 hover:border-amber-400 hover:bg-amber-50" },
   { href: "/admin/doctors", label: "Verify Doctors", desc: "Approve pending accounts", icon: "✅", color: "border-teal-200 hover:border-teal-400 hover:bg-teal-50" },
   { href: "/admin/doctors/invite", label: "Invite Doctor", desc: "Add a new specialist", icon: "➕", color: "border-blue-200 hover:border-blue-400 hover:bg-blue-50" },
-  { href: "/admin/hospitals", label: "Manage Hospitals", desc: "Hospitals & packages", icon: "🏥", color: "border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50" },
+  { href: "/admin/hospitals", label: "Manage Hospitals", desc: "Hospitals & packages", icon: "🏥", color: "border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800" },
 ];
 
 export default function AdminDashboardPage() {
@@ -87,29 +87,29 @@ export default function AdminDashboardPage() {
   });
 
   return (
-    <div className="p-8 space-y-8 max-w-6xl">
+    <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 max-w-6xl">
 
       {/* Page header */}
       <div>
-        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest">{today}</p>
-        <h1 className="text-2xl font-extrabold text-zinc-900 mt-1">Operations Dashboard</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">Live overview of MediBridge activity</p>
+        <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{today}</p>
+        <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white mt-1">Operations Dashboard</h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Live overview of MediBridge activity</p>
       </div>
 
       {/* KPI cards */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(7)].map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : kpis ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <StatCard
             label="Pending Intakes"
             value={kpis.pending_intakes}
             sub="Awaiting doctor match"
             href="/admin/intakes"
             alert={kpis.pending_intakes > 0}
-            accent={kpis.pending_intakes > 0 ? "bg-amber-100 text-amber-600" : "bg-zinc-100 text-zinc-400"}
+            accent={kpis.pending_intakes > 0 ? "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" : "bg-amber-50 dark:bg-amber-900/20 text-amber-400 dark:text-amber-600"}
             icon={
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -122,7 +122,7 @@ export default function AdminDashboardPage() {
             value={kpis.appointments_today}
             sub="Scheduled or in progress"
             href="/admin/bookings?type=consultation"
-            accent="bg-blue-100 text-blue-600"
+            accent="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
             icon={
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -135,7 +135,7 @@ export default function AdminDashboardPage() {
             value={kpis.new_surgery_bookings_7d}
             sub="Last 7 days"
             href="/admin/bookings?type=surgery"
-            accent="bg-purple-100 text-purple-600"
+            accent="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
             icon={
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -149,7 +149,7 @@ export default function AdminDashboardPage() {
             sub="Awaiting verification"
             href="/admin/doctors"
             alert={kpis.unverified_doctors > 0}
-            accent={kpis.unverified_doctors > 0 ? "bg-amber-100 text-amber-600" : "bg-zinc-100 text-zinc-400"}
+            accent={kpis.unverified_doctors > 0 ? "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" : "bg-amber-50 dark:bg-amber-900/20 text-amber-400 dark:text-amber-600"}
             icon={
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -162,7 +162,7 @@ export default function AdminDashboardPage() {
             value={kpis.active_doctors}
             sub="Verified and available"
             href="/admin/doctors"
-            accent="bg-emerald-100 text-emerald-600"
+            accent="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
             icon={
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -175,7 +175,7 @@ export default function AdminDashboardPage() {
             value={`$${kpis.confirmed_surgery_revenue_usd.toLocaleString()}`}
             sub="USD — confirmed bookings"
             href="/admin/bookings?type=surgery&status=confirmed"
-            accent="bg-teal-100 text-teal-600"
+            accent="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400"
             icon={
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -188,7 +188,7 @@ export default function AdminDashboardPage() {
             value={`$${kpis.consultation_revenue_usd.toLocaleString()}`}
             sub="USD — paid consultations"
             href="/admin/bookings?type=consultation"
-            accent="bg-teal-100 text-teal-600"
+            accent="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400"
             icon={
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -198,24 +198,24 @@ export default function AdminDashboardPage() {
           />
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-zinc-200 p-10 text-center">
-          <p className="text-zinc-500 text-sm">Could not load KPIs. Please refresh.</p>
+        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-10 text-center">
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm">Could not load KPIs. Please refresh.</p>
         </div>
       )}
 
       {/* Quick actions */}
       <div>
-        <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-3">Quick Actions</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <h2 className="text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-3">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {QUICK_ACTIONS.map((a) => (
             <Link
               key={a.href}
               href={a.href}
-              className={`bg-white border rounded-2xl p-5 transition-all group ${a.color}`}
+              className={`bg-white dark:bg-zinc-800 border rounded-2xl p-5 transition-all group ${a.color}`}
             >
               <p className="text-2xl mb-3">{a.icon}</p>
-              <p className="font-semibold text-zinc-900 text-sm group-hover:text-zinc-800">{a.label}</p>
-              <p className="text-xs text-zinc-400 mt-0.5">{a.desc}</p>
+              <p className="font-semibold text-zinc-900 dark:text-white text-sm group-hover:text-zinc-800 dark:group-hover:text-zinc-100">{a.label}</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{a.desc}</p>
             </Link>
           ))}
         </div>

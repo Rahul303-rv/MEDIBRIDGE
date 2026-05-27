@@ -48,7 +48,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
-        if (typeof window !== "undefined") {
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/auth")) {
           const next = encodeURIComponent(window.location.pathname);
           window.location.href = `/auth/login?next=${next}`;
         }

@@ -43,3 +43,16 @@ class PatientProfile(models.Model):
     def is_complete(self):
         required = [self.first_name, self.last_name, self.date_of_birth, self.gender, self.phone, self.country]
         return all(bool(f) for f in required)
+
+
+class MedicalReport(models.Model):
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name="medical_reports")
+    title = models.CharField(max_length=255)
+    file = models.FileField(upload_to="medical_reports/%Y/%m/")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-uploaded_at"]
+
+    def __str__(self):
+        return f"{self.patient.user.email} — {self.title}"

@@ -9,16 +9,16 @@ import { DoctorProfile } from "@/types/api";
 function CheckItem({ done, label }: { done: boolean; label: string }) {
   return (
     <div className="flex items-center gap-2.5">
-      <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${done ? "bg-teal-500" : "bg-zinc-200"}`}>
+      <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${done ? "bg-teal-500" : "bg-zinc-200 dark:bg-zinc-700"}`}>
         {done ? (
           <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
           </svg>
         ) : (
-          <div className="w-2 h-2 rounded-full bg-zinc-400" />
+          <div className="w-2 h-2 rounded-full bg-zinc-400 dark:bg-zinc-500" />
         )}
       </div>
-      <span className={`text-sm ${done ? "text-zinc-500 line-through" : "text-zinc-700"}`}>{label}</span>
+      <span className={`text-sm ${done ? "text-zinc-500 dark:text-zinc-400 line-through" : "text-zinc-700 dark:text-zinc-200"}`}>{label}</span>
     </div>
   );
 }
@@ -26,12 +26,12 @@ function CheckItem({ done, label }: { done: boolean; label: string }) {
 function DashboardSkeleton() {
   return (
     <div className="animate-pulse space-y-6">
-      <div className="h-36 bg-zinc-200 rounded-2xl" />
-      <div className="h-40 bg-zinc-100 rounded-2xl" />
+      <div className="h-36 bg-zinc-200 dark:bg-zinc-700 rounded-2xl" />
+      <div className="h-40 bg-zinc-100 dark:bg-zinc-700 rounded-2xl" />
       <div className="grid grid-cols-2 gap-4">
-        <div className="h-32 bg-zinc-100 rounded-2xl" />
-        <div className="h-32 bg-zinc-100 rounded-2xl" />
-        <div className="h-32 bg-zinc-100 rounded-2xl" />
+        <div className="h-32 bg-zinc-100 dark:bg-zinc-700 rounded-2xl" />
+        <div className="h-32 bg-zinc-100 dark:bg-zinc-700 rounded-2xl" />
+        <div className="h-32 bg-zinc-100 dark:bg-zinc-700 rounded-2xl" />
       </div>
     </div>
   );
@@ -120,7 +120,7 @@ export default function DoctorDashboard() {
     : false;
 
   return (
-    <div className="p-8 space-y-8 max-w-4xl">
+    <div className="p-4 sm:p-8 space-y-8 max-w-4xl">
 
       {/* Welcome header */}
       <div className="bg-gradient-to-br from-teal-600 to-cyan-500 rounded-2xl p-7 text-white relative overflow-hidden">
@@ -181,21 +181,21 @@ export default function DoctorDashboard() {
 
           {/* Quick actions */}
           <div>
-            <h2 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">Quick Actions</h2>
+            <h2 className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {QUICK_ACTIONS.map((action) => (
                 <Link
                   key={action.href}
                   href={action.href}
-                  className="bg-white rounded-2xl border border-zinc-200 hover:border-teal-300 hover:shadow-sm p-5 transition-all group"
+                  className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 hover:border-teal-300 hover:shadow-sm p-5 transition-all group"
                 >
                   <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${action.iconBg}`}>
                     {action.icon}
                   </div>
-                  <p className="font-bold text-zinc-900 text-sm group-hover:text-teal-700 transition-colors">
+                  <p className="font-bold text-zinc-900 dark:text-white text-sm group-hover:text-teal-700 transition-colors">
                     {action.label}
                   </p>
-                  <p className="text-xs text-zinc-500 mt-1 leading-relaxed">{action.desc}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">{action.desc}</p>
                 </Link>
               ))}
             </div>
@@ -203,13 +203,13 @@ export default function DoctorDashboard() {
 
           {/* Profile tip */}
           {profile && !profile.is_profile_complete && (
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 flex items-center gap-5">
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-5 flex items-center gap-5">
               <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-2xl shrink-0">
                 📋
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-zinc-900 text-sm">Your profile is incomplete</p>
-                <p className="text-xs text-zinc-500 mt-0.5">
+                <p className="font-semibold text-zinc-900 dark:text-white text-sm">Your profile is incomplete</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                   Complete your profile so patients can find and book you.
                 </p>
               </div>

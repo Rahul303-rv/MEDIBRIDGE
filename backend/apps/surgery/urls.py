@@ -21,4 +21,6 @@ admin_patterns = [
     path("surgery-bookings", views.admin_surgery_booking_list),
     path("surgery-bookings/<int:pk>", views.admin_surgery_booking_detail),
     path("surgery-bookings/<int:pk>/documents/<int:did>/file", views.booking_document_file),
+    path("surgery-recommendations", views.admin_surgery_recommendation_list),
+    path("surgery-recommendations/<int:pk>", views.admin_surgery_recommendation_detail),
 ]

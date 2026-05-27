@@ -4,9 +4,9 @@ import DoctorNav from "./_components/nav";
 export default function DoctorLayout({ children }: { children: React.ReactNode }) {
   return (
     <RoleGuard role="doctor">
-      <div className="flex min-h-screen bg-zinc-50">
+      <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-900">
         <DoctorNav />
-        <div className="flex-1 overflow-auto">{children}</div>
+        <div className="flex-1 overflow-auto pt-14 lg:pt-0">{children}</div>
       </div>
     </RoleGuard>
   );
