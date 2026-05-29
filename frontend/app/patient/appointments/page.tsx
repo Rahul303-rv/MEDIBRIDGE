@@ -5,6 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { Appointment } from "@/types/api";
+import { usePolling } from "@/hooks/use-polling";
 
 const STATUS_STYLES: Record<string, { badge: string; dot: string; label: string }> = {
   proposed:    { badge: "bg-amber-100 text-amber-700 border border-amber-200",   dot: "bg-amber-400",  label: "Awaiting confirmation" },
@@ -120,9 +121,13 @@ function AppointmentCard({
           {appt.status === "completed" && appt.has_prescription && (
             <Link
               href="/patient/prescriptions"
-              className="h-9 px-4 rounded-xl border border-teal-200 text-xs font-semibold text-teal-700 hover:bg-teal-50 transition-colors"
+              className="inline-flex items-center justify-center gap-1 h-9 px-4 rounded-xl border border-teal-200 dark:border-teal-700 bg-teal-50 dark:bg-teal-900/20 text-xs font-semibold text-teal-700 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-900/30 transition-colors"
             >
-              View Prescription →
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              View Prescription
             </Link>
           )}
         </div>
@@ -140,6 +145,13 @@ export default function PatientAppointmentsPage() {
       .then((res) => setAppointments(res.data))
       .finally(() => setLoading(false));
   }, []);
+
+  // Auto-refresh so admin schedule changes / doctor status updates appear without reload
+  usePolling(() => {
+    api.get("/api/v1/patient/appointments")
+      .then((res) => setAppointments(res.data))
+      .catch(() => {/* silent */});
+  }, 10000);
 
   async function cancelAppt(id: number) {
     try {
@@ -176,7 +188,7 @@ export default function PatientAppointmentsPage() {
         </div>
         <Link
           href="/patient/symptoms"
-          className="h-9 px-4 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors"
+          className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors"
         >
           + New Consultation
         </Link>

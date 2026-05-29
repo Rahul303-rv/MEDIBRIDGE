@@ -270,8 +270,7 @@ function MedicalReportsSection() {
       .finally(() => setLoadingReports(false));
   }, []);
 
-  async function handleUpload(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleUpload() {
     const file = fileRef.current?.files?.[0];
     if (!file) { toast.error("Select a file first."); return; }
     if (!title.trim()) { toast.error("Enter a report title."); return; }
@@ -316,12 +315,13 @@ function MedicalReportsSection() {
       </div>
 
       <div className="space-y-4">
-        {/* Upload form */}
-        <form onSubmit={handleUpload} className="flex flex-col sm:flex-row gap-3">
+        {/* Upload controls — div, not <form>, to avoid nesting inside the profile form */}
+        <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleUpload(); } }}
             placeholder="Report title (e.g. Blood Test — Jan 2026)"
             className="flex-1 h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-700 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none focus:border-teal-400"
           />
@@ -333,13 +333,14 @@ function MedicalReportsSection() {
             <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" className="hidden" />
           </label>
           <button
-            type="submit"
+            type="button"
+            onClick={handleUpload}
             disabled={uploading}
             className="h-10 px-5 rounded-lg bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 disabled:opacity-50 transition-colors shrink-0"
           >
             {uploading ? "Uploading…" : "Upload"}
           </button>
-        </form>
+        </div>
 
         {/* Report list */}
         {loadingReports ? (

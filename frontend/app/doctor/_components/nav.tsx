@@ -77,7 +77,7 @@ export default function DoctorNav() {
     <>
       {/* ── Mobile top bar ── */}
       <header className="fixed top-0 left-0 right-0 h-14 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between px-4 z-30 lg:hidden">
-        <Link href="/doctor" className="flex items-center gap-2" onClick={close}>
+        <Link href="/" className="flex items-center gap-2" onClick={close} title="Go to home page">
           <div className="w-7 h-7 rounded-lg bg-teal-600 flex items-center justify-center">
             <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
@@ -133,7 +133,7 @@ export default function DoctorNav() {
 
         {/* Brand */}
         <div className="px-5 py-5 border-b border-zinc-100 dark:border-zinc-800">
-          <Link href="/doctor" className="flex items-center gap-2.5" onClick={close}>
+          <Link href="/" className="flex items-center gap-2.5" onClick={close} title="Go to home page">
             <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}

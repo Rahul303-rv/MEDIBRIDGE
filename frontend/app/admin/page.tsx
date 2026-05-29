@@ -13,6 +13,7 @@ interface KPIs {
   active_doctors: number;
   confirmed_surgery_revenue_usd: number;
   consultation_revenue_usd: number;
+  pending_surgery_recs: number;
 }
 
 function StatCard({
@@ -99,7 +100,7 @@ export default function AdminDashboardPage() {
       {/* KPI cards */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(7)].map((_, i) => <SkeletonCard key={i} />)}
+          {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : kpis ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -140,6 +141,20 @@ export default function AdminDashboardPage() {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                   d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            }
+          />
+          <StatCard
+            label="Pending Surgery Recs"
+            value={kpis.pending_surgery_recs}
+            sub="Awaiting your approval"
+            href="/admin/surgery-recommendations?status=pending_admin"
+            alert={kpis.pending_surgery_recs > 0}
+            accent={kpis.pending_surgery_recs > 0 ? "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400" : "bg-orange-50 dark:bg-orange-900/20 text-orange-300 dark:text-orange-700"}
+            icon={
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
               </svg>
             }
           />

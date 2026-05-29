@@ -16,6 +16,23 @@ import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 
+interface UploadedReport {
+  id: number;
+  title: string;
+  uploaded_at: string;
+}
+
+const REPORT_TITLES = [
+  "Blood Test Report",
+  "Ultrasound Report",
+  "MRI Scan",
+  "X-Ray",
+  "ECG Report",
+  "Biopsy Report",
+  "Hormone Panel",
+  "Other",
+];
+
 const schema = z.object({
   chief_complaint: z.string().min(5, "Please describe your main complaint (min 5 characters)"),
   symptoms: z.string().min(10, "Please describe your symptoms in more detail"),
@@ -32,6 +49,14 @@ export default function SymptomIntakePage() {
   const [doctors, setDoctors] = useState<DoctorProfile[]>([]);
   const [doctorDropdownOpen, setDoctorDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Report upload state
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [hasReports, setHasReports] = useState(false);
+  const [reports, setReports] = useState<UploadedReport[]>([]);
+  const [reportTitle, setReportTitle] = useState("Blood Test Report");
+  const [customTitle, setCustomTitle] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -65,6 +90,36 @@ export default function SymptomIntakePage() {
     // Load doctor list for optional preference
     api.get("/api/v1/public/doctors").then((res) => setDoctors(res.data)).catch(() => {});
   }, [form]);
+
+  async function uploadReport(file: File) {
+    if (file.size > 10 * 1024 * 1024) { toast.error("File must be under 10 MB."); return; }
+    const allowed = ["application/pdf", "image/jpeg", "image/png"];
+    if (!allowed.includes(file.type)) { toast.error("Only PDF, JPEG, or PNG accepted."); return; }
+    const title = reportTitle === "Other" ? (customTitle.trim() || "Other Report") : reportTitle;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("title", title);
+    try {
+      const res = await api.post("/api/v1/patient/medical-reports", fd);
+      setReports((prev) => [...prev, res.data]);
+      toast.success(`"${title}" uploaded.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch {
+      toast.error("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function removeReport(id: number) {
+    try {
+      await api.delete(`/api/v1/patient/medical-reports/${id}`);
+      setReports((prev) => prev.filter((r) => r.id !== id));
+    } catch {
+      toast.error("Could not remove report.");
+    }
+  }
 
   async function onSubmit(values: FormValues) {
     try {
@@ -182,6 +237,96 @@ export default function SymptomIntakePage() {
                     <FormMessage />
                   </FormItem>
                 )} />
+
+                {/* Test Report Upload */}
+                <div className="space-y-3">
+                  {/* Checkbox toggle */}
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={hasReports}
+                      onChange={(e) => setHasReports(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-zinc-900 dark:text-white group-hover:text-teal-600 transition-colors">
+                        I have existing test reports to upload
+                        <span className="text-zinc-400 dark:text-zinc-500 font-normal ml-1">(optional)</span>
+                      </p>
+                      <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                        Blood tests, scans, ultrasounds, or any relevant reports. PDF, JPEG, PNG · Max 10 MB each.
+                      </p>
+                    </div>
+                  </label>
+
+                  {/* Upload controls — shown only when checkbox is ticked */}
+                  {hasReports && (
+                    <div className="space-y-3 pl-7">
+                      {/* Uploaded reports list */}
+                      {reports.length > 0 && (
+                        <div className="space-y-2">
+                          {reports.map((r) => (
+                            <div key={r.id} className="flex items-center justify-between bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-800 rounded-lg px-3 py-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-teal-600 text-sm">📄</span>
+                                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{r.title}</span>
+                                <span className="text-xs text-zinc-400 dark:text-zinc-500">Uploaded</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeReport(r.id)}
+                                className="text-xs text-red-500 hover:text-red-600 transition-colors"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">Report Type</label>
+                          <select
+                            value={reportTitle}
+                            onChange={(e) => setReportTitle(e.target.value)}
+                            className="flex h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring"
+                          >
+                            {REPORT_TITLES.map((t) => (
+                              <option key={t} value={t}>{t}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="flex items-end">
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={(e) => { if (e.target.files?.[0]) uploadReport(e.target.files[0]); }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={uploading}
+                            onClick={() => fileInputRef.current?.click()}
+                            className="w-full h-9"
+                          >
+                            {uploading ? "Uploading…" : "Choose File"}
+                          </Button>
+                        </div>
+                      </div>
+                      {reportTitle === "Other" && (
+                        <Input
+                          placeholder="Enter report name…"
+                          value={customTitle}
+                          onChange={(e) => setCustomTitle(e.target.value)}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 <FormField control={form.control} name="preferred_doctor" render={({ field }) => {
                   const selected = doctors.find((d) => String(d.id) === field.value);

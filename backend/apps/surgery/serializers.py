@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import PatientTravelInfo, SurgeryPackageBooking, SurgeryCoupon, SurgeryRecommendation, TravelDocument
+from .models import PatientTravelInfo, RecommendationMessage, SurgeryPackageBooking, SurgeryCoupon, SurgeryRecommendation, TravelDocument
 
 
 class TravelDocumentSerializer(serializers.ModelSerializer):
@@ -31,7 +31,7 @@ class SurgeryBookingListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SurgeryPackageBooking
-        fields = ["id", "package_name", "hospital_name", "surgery_type",
+        fields = ["id", "package", "package_name", "hospital_name", "surgery_type",
                   "status", "tentative_date", "total_amount_usd", "created_at",
                   "recommended_by_doctor"]
 
@@ -136,6 +136,8 @@ class SurgeryRecommendationSerializer(serializers.ModelSerializer):
     doctor_name = serializers.SerializerMethodField()
     patient_name = serializers.SerializerMethodField()
     patient_email = serializers.SerializerMethodField()
+    unread_for_doctor = serializers.SerializerMethodField()
+    unread_for_patient = serializers.SerializerMethodField()
 
     class Meta:
         model = SurgeryRecommendation
@@ -143,7 +145,20 @@ class SurgeryRecommendationSerializer(serializers.ModelSerializer):
             "id", "status", "admin_notes", "package", "package_name", "package_slug",
             "hospital_name", "surgery_type", "price_usd", "doctor_name", "patient_name",
             "patient_email", "notes", "appointment", "created_at",
+            "unread_for_doctor", "unread_for_patient",
         ]
+
+    def get_unread_for_doctor(self, obj):
+        # Doctor only sees the doctor↔admin thread
+        return obj.messages.filter(
+            thread_type="doctor", sender_role="admin", read_by_doctor=False
+        ).count()
+
+    def get_unread_for_patient(self, obj):
+        # Patient only sees the patient↔admin thread
+        return obj.messages.filter(
+            thread_type="patient", sender_role="admin", read_by_patient=False
+        ).count()
 
     def get_doctor_name(self, obj):
         return f"Dr. {obj.doctor.first_name} {obj.doctor.last_name}".strip()
@@ -165,6 +180,8 @@ class AdminSurgeryRecommendationSerializer(serializers.ModelSerializer):
     hospital_name = serializers.CharField(source="package.hospital.name", read_only=True)
     surgery_type = serializers.CharField(source="package.surgery_type", read_only=True)
     price_usd = serializers.CharField(source="package.price_usd", read_only=True)
+    unread_for_admin_from_doctor = serializers.SerializerMethodField()
+    unread_for_admin_from_patient = serializers.SerializerMethodField()
 
     class Meta:
         model = SurgeryRecommendation
@@ -173,7 +190,18 @@ class AdminSurgeryRecommendationSerializer(serializers.ModelSerializer):
             "hospital_name", "surgery_type", "price_usd",
             "doctor_name", "patient_name", "patient_email",
             "notes", "appointment", "created_at",
+            "unread_for_admin_from_doctor", "unread_for_admin_from_patient",
         ]
+
+    def get_unread_for_admin_from_doctor(self, obj):
+        return obj.messages.filter(
+            thread_type="doctor", sender_role="doctor", read_by_admin=False
+        ).count()
+
+    def get_unread_for_admin_from_patient(self, obj):
+        return obj.messages.filter(
+            thread_type="patient", sender_role="patient", read_by_admin=False
+        ).count()
 
     def get_doctor_name(self, obj):
         return f"Dr. {obj.doctor.first_name} {obj.doctor.last_name}".strip()
@@ -184,6 +212,42 @@ class AdminSurgeryRecommendationSerializer(serializers.ModelSerializer):
 
     def get_patient_email(self, obj):
         return obj.patient.user.email
+
+
+class RecommendationMessageSerializer(serializers.ModelSerializer):
+    sender_name = serializers.SerializerMethodField()
+    sender_email = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RecommendationMessage
+        fields = ["id", "sender_role", "sender_name", "sender_email", "body", "created_at"]
+        read_only_fields = ["id", "sender_role", "sender_name", "sender_email", "created_at"]
+
+    def get_sender_name(self, obj):
+        if not obj.sender:
+            return "Unknown"
+        user = obj.sender
+        if obj.sender_role == "doctor" and hasattr(user, "doctor_profile"):
+            p = user.doctor_profile
+            return f"Dr. {p.first_name} {p.last_name}".strip() or user.email
+        if obj.sender_role == "patient" and hasattr(user, "patient_profile"):
+            p = user.patient_profile
+            return f"{p.first_name} {p.last_name}".strip() or user.email
+        if obj.sender_role == "admin":
+            return "Admin Team"
+        return user.email
+
+    def get_sender_email(self, obj):
+        return obj.sender.email if obj.sender else ""
+
+
+class RecommendationMessageCreateSerializer(serializers.Serializer):
+    body = serializers.CharField(max_length=4000, trim_whitespace=True)
+
+    def validate_body(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("Message cannot be empty.")
+        return value.strip()
 
 
 class SurgeryRecommendationCreateSerializer(serializers.Serializer):

@@ -144,6 +144,46 @@ class SurgeryRecommendation(models.Model):
         return f"SurgeryRec #{self.id} — {self.package.name}"
 
 
+class RecommendationMessage(models.Model):
+    SENDER_ROLE_CHOICES = [
+        ("admin", "Admin"),
+        ("doctor", "Doctor"),
+        ("patient", "Patient"),
+    ]
+    THREAD_TYPE_CHOICES = [
+        ("doctor", "Doctor Thread"),   # admin ↔ doctor
+        ("patient", "Patient Thread"), # admin ↔ patient
+    ]
+
+    recommendation = models.ForeignKey(
+        SurgeryRecommendation,
+        on_delete=models.CASCADE,
+        related_name="messages",
+    )
+    thread_type = models.CharField(
+        max_length=10, choices=THREAD_TYPE_CHOICES, default="doctor", db_index=True,
+        help_text="Which conversation this message belongs to (admin↔doctor or admin↔patient).",
+    )
+    sender = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="recommendation_messages",
+    )
+    sender_role = models.CharField(max_length=10, choices=SENDER_ROLE_CHOICES)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    read_by_admin = models.BooleanField(default=False)
+    read_by_doctor = models.BooleanField(default=False)
+    read_by_patient = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Msg #{self.id} on Rec #{self.recommendation_id} [{self.thread_type}] by {self.sender_role}"
+
+
 class SurgeryCoupon(models.Model):
     booking = models.OneToOneField(
         SurgeryPackageBooking,

@@ -18,6 +18,8 @@ interface AdminSurgeryRec {
   patient_email: string;
   notes: string;
   created_at: string;
+  unread_for_admin_from_doctor: number;
+  unread_for_admin_from_patient: number;
 }
 
 const STATUS_FILTER_TABS: { value: string; label: string }[] = [
@@ -46,14 +48,22 @@ export default function AdminSurgeryRecommendationsPage() {
   const [approving, setApproving] = useState<number | null>(null);
 
   useEffect(() => {
-    setLoading(true);
     const url = filter
       ? `/api/v1/admin/surgery-recommendations?status=${filter}`
       : "/api/v1/admin/surgery-recommendations";
-    api.get(url)
-      .then((res) => setRecs(res.data))
-      .catch(() => toast.error("Failed to load recommendations."))
-      .finally(() => setLoading(false));
+
+    function fetchRecs(showLoading: boolean) {
+      if (showLoading) setLoading(true);
+      api.get(url)
+        .then((res) => setRecs(res.data))
+        .catch(() => { if (showLoading) toast.error("Failed to load recommendations."); })
+        .finally(() => { if (showLoading) setLoading(false); });
+    }
+
+    fetchRecs(true);
+    // Poll every 10s so unread message badges update without manual refresh
+    const interval = setInterval(() => fetchRecs(false), 10000);
+    return () => clearInterval(interval);
   }, [filter]);
 
   async function quickApprove(rec: AdminSurgeryRec) {
@@ -165,7 +175,61 @@ export default function AdminSurgeryRecommendationsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                    {/* Doctor chat button */}
+                    <Link
+                      href={`/admin/surgery-recommendations/${rec.id}#discussion-doctor`}
+                      className={`relative h-8 px-3 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                        rec.unread_for_admin_from_doctor > 0
+                          ? "bg-amber-500 text-white hover:bg-amber-600 shadow-sm"
+                          : "bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-700 hover:bg-teal-100 dark:hover:bg-teal-900/40"
+                      }`}
+                      title={rec.unread_for_admin_from_doctor > 0
+                        ? `${rec.unread_for_admin_from_doctor} new message${rec.unread_for_admin_from_doctor > 1 ? "s" : ""} from doctor`
+                        : "Open chat with doctor"
+                      }
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      {rec.unread_for_admin_from_doctor > 0
+                        ? `Doctor (${rec.unread_for_admin_from_doctor})`
+                        : "Doctor"}
+                      {rec.unread_for_admin_from_doctor > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-zinc-800">
+                          {rec.unread_for_admin_from_doctor > 9 ? "9+" : rec.unread_for_admin_from_doctor}
+                        </span>
+                      )}
+                    </Link>
+
+                    {/* Patient chat button */}
+                    <Link
+                      href={`/admin/surgery-recommendations/${rec.id}#discussion-patient`}
+                      className={`relative h-8 px-3 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                        rec.unread_for_admin_from_patient > 0
+                          ? "bg-amber-500 text-white hover:bg-amber-600 shadow-sm"
+                          : "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-700 hover:bg-purple-100 dark:hover:bg-purple-900/40"
+                      }`}
+                      title={rec.unread_for_admin_from_patient > 0
+                        ? `${rec.unread_for_admin_from_patient} new message${rec.unread_for_admin_from_patient > 1 ? "s" : ""} from patient`
+                        : "Open chat with patient"
+                      }
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      {rec.unread_for_admin_from_patient > 0
+                        ? `Patient (${rec.unread_for_admin_from_patient})`
+                        : "Patient"}
+                      {rec.unread_for_admin_from_patient > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-zinc-800">
+                          {rec.unread_for_admin_from_patient > 9 ? "9+" : rec.unread_for_admin_from_patient}
+                        </span>
+                      )}
+                    </Link>
+
                     {rec.status === "pending_admin" && (
                       <button onClick={() => quickApprove(rec)}
                         disabled={approving === rec.id}

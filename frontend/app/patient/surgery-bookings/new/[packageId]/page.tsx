@@ -8,6 +8,7 @@ import api from "@/lib/api";
 import { SurgeryBookingDetail, SurgeryPackage, TravelDocument } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import DiscussionPanel from "@/components/discussion-panel";
 
 // ── Step tracker ──────────────────────────────────────────────────────────────
 
@@ -73,6 +74,11 @@ export default function NewSurgeryBookingPage() {
   const [saving, setSaving] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
 
+  // Floating chat with admin (uses the existing recommendation chat thread)
+  const [recommendationId, setRecommendationId] = useState<number | null>(null);
+  const [unreadFromAdmin, setUnreadFromAdmin] = useState(0);
+  const [chatOpen, setChatOpen] = useState(false);
+
   useEffect(() => {
     api.get("/api/v1/public/packages")
       .then((res) => {
@@ -81,6 +87,20 @@ export default function NewSurgeryBookingPage() {
         else toast.error("Package not found.");
       })
       .catch(() => toast.error("Failed to load package."));
+  }, [packageId]);
+
+  // Find this patient's recommendation for the package so we can chat with admin about it
+  useEffect(() => {
+    api.get("/api/v1/patient/surgery-recommendations")
+      .then((res) => {
+        const rec = (res.data as Array<{ id: number; package: number; unread_for_patient: number }>)
+          .find((r) => r.package === Number(packageId));
+        if (rec) {
+          setRecommendationId(rec.id);
+          setUnreadFromAdmin(rec.unread_for_patient ?? 0);
+        }
+      })
+      .catch(() => {/* silent — chat is optional */});
   }, [packageId]);
 
   // ── Step 0: Date ────────────────────────────────────────────────────────────
@@ -204,7 +224,10 @@ export default function NewSurgeryBookingPage() {
     }
   }
 
-  const inputCls = "w-full rounded-lg border border-input px-3 py-2 text-sm outline-none focus-visible:border-ring";
+  // [color-scheme:dark] tells the browser to render native popups (<select> options,
+  // <input type="date"> calendar) using the dark theme — otherwise they appear as
+  // a washed-out light dropdown over the dark page.
+  const inputCls = "w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm outline-none focus-visible:border-ring [color-scheme:light] dark:[color-scheme:dark]";
 
   if (!pkg) return <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8"><p className="text-sm text-zinc-400">Loading package…</p></main>;
 
@@ -281,10 +304,10 @@ export default function NewSurgeryBookingPage() {
                 <div>
                   <label className="text-xs text-zinc-600 dark:text-zinc-400 mb-1 block">Visa Status</label>
                   <select value={travelInfo.visa_status} onChange={tiField("visa_status")} className={inputCls}>
-                    <option value="not_required">Not Required</option>
-                    <option value="not_applied">Not Applied Yet</option>
-                    <option value="applied">Applied</option>
-                    <option value="granted">Granted</option>
+                    <option value="not_required" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">Not Required</option>
+                    <option value="not_applied" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">Not Applied Yet</option>
+                    <option value="applied" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">Applied</option>
+                    <option value="granted" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">Granted</option>
                   </select>
                 </div>
               </div>
@@ -353,10 +376,10 @@ export default function NewSurgeryBookingPage() {
                 <div>
                   <label className="text-xs text-zinc-600 dark:text-zinc-400 mb-1 block">Document Type</label>
                   <select value={uploadDocType} onChange={(e) => setUploadDocType(e.target.value)} className={inputCls}>
-                    <option value="passport">Passport</option>
-                    {needsVisa && <option value="visa">Visa</option>}
-                    <option value="govt_id">Government ID</option>
-                    <option value="other">Other</option>
+                    <option value="passport" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">Passport</option>
+                    {needsVisa && <option value="visa" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">Visa</option>}
+                    <option value="govt_id" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">Government ID</option>
+                    <option value="other" className="bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">Other</option>
                   </select>
                 </div>
                 <div className="flex items-end">
@@ -505,6 +528,73 @@ export default function NewSurgeryBookingPage() {
           </Card>
         )}
       </div>
+
+      {/* ── Floating Chat with Admin — visible on all 6 steps ────────────── */}
+      {recommendationId !== null && (
+        <>
+          {/* Floating button (bottom-right) */}
+          <button
+            onClick={() => {
+              setChatOpen(true);
+              if (unreadFromAdmin > 0) setUnreadFromAdmin(0);
+            }}
+            title="Have a question? Chat with our admin team"
+            className="fixed bottom-6 right-6 z-40 flex items-center gap-2 h-12 px-5 rounded-full bg-teal-600 text-white shadow-lg hover:bg-teal-700 hover:shadow-xl transition-all"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span className="text-sm font-semibold">Chat with Admin</span>
+            {unreadFromAdmin > 0 && (
+              <span className="ml-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white">
+                {unreadFromAdmin > 9 ? "9+" : unreadFromAdmin}
+              </span>
+            )}
+          </button>
+
+          {/* Slide-in drawer */}
+          {chatOpen && (
+            <>
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 bg-black/40 z-40 transition-opacity"
+                onClick={() => setChatOpen(false)}
+              />
+              {/* Panel */}
+              <aside className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[420px] bg-zinc-50 dark:bg-zinc-900 shadow-2xl flex flex-col">
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+                  <div>
+                    <p className="text-sm font-bold text-zinc-900 dark:text-white">Booking Support</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      Ask the MediBridge admin team any question about your booking
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setChatOpen(false)}
+                    aria-label="Close chat"
+                    className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                {/* Chat */}
+                <div className="flex-1 overflow-hidden p-3">
+                  <DiscussionPanel
+                    viewerRole="patient"
+                    endpoint={`/api/v1/patient/surgery-recommendations/${recommendationId}/messages`}
+                    otherPartyName="Admin Team"
+                    onMessagesRead={() => setUnreadFromAdmin(0)}
+                  />
+                </div>
+              </aside>
+            </>
+          )}
+        </>
+      )}
     </main>
   );
 }

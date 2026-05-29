@@ -192,7 +192,7 @@ export default function PatientDashboard() {
         </div>
         <Link
           href="/doctors"
-          className="h-9 px-4 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors shrink-0"
+          className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors shrink-0"
         >
           Find Doctors
         </Link>

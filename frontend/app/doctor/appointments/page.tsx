@@ -5,6 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { DoctorAppointment } from "@/types/api";
+import { usePolling } from "@/hooks/use-polling";
 
 const STATUS_STYLES: Record<string, { badge: string; dot: string; label: string }> = {
   proposed:    { badge: "bg-amber-100 text-amber-700 border border-amber-200",    dot: "bg-amber-400",   label: "Awaiting patient" },
@@ -88,6 +89,19 @@ function AppointmentCard({
 
         {/* Actions */}
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Patient Details — always visible so doctor can review profile + medical history before consultation */}
+          <Link
+            href={`/doctor/appointments/${appt.id}`}
+            className="h-9 px-4 rounded-xl border border-zinc-200 dark:border-zinc-600 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center gap-1.5"
+            title="View patient profile, medical history & uploaded reports"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            Patient Details
+          </Link>
+
           {showJoin && (
             joinReady ? (
               <a
@@ -112,7 +126,7 @@ function AppointmentCard({
             <button
               key={t.next}
               onClick={() => onUpdate(appt.id, t.next)}
-              className={`h-9 px-4 rounded-xl text-xs font-semibold transition-colors ${t.color}`}
+              className={`h-9 px-4 rounded-xl text-xs font-semibold transition-colors inline-flex items-center justify-center ${t.color}`}
             >
               {t.label}
             </button>
@@ -120,17 +134,25 @@ function AppointmentCard({
           {appt.status === "completed" && !appt.has_prescription && (
             <Link
               href={`/doctor/appointments/${appt.id}/prescribe`}
-              className="h-9 px-4 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition-colors"
+              className="h-9 px-4 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition-colors inline-flex items-center gap-1.5"
             >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
               Write Prescription
             </Link>
           )}
           {appt.status === "completed" && appt.has_prescription && (
             <Link
               href={`/doctor/appointments/${appt.id}/prescribe`}
-              className="h-9 px-4 rounded-xl border border-teal-200 text-xs font-semibold text-teal-700 hover:bg-teal-50 transition-colors"
+              className="h-9 px-4 rounded-xl border border-teal-200 dark:border-teal-700 bg-teal-50 dark:bg-teal-900/20 text-xs font-semibold text-teal-700 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-900/30 transition-colors inline-flex items-center gap-1.5"
             >
-              Edit Prescription →
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit Prescription
             </Link>
           )}
         </div>
@@ -149,6 +171,13 @@ export default function DoctorAppointmentsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Auto-refresh so new patient bookings / status changes appear without manual reload
+  usePolling(() => {
+    api.get("/api/v1/doctor/appointments")
+      .then((res) => setAppointments(res.data))
+      .catch(() => {/* silent */});
+  }, 10000);
+
   async function updateStatus(id: number, newStatus: string) {
     try {
       const res = await api.patch(`/api/v1/doctor/appointments/${id}/status`, { status: newStatus });
@@ -159,9 +188,15 @@ export default function DoctorAppointmentsPage() {
     }
   }
 
-  const pending  = appointments.filter((a) => a.status === "proposed");
-  const upcoming = appointments.filter((a) => ["scheduled", "in_progress"].includes(a.status));
-  const past     = appointments.filter((a) => ["completed", "cancelled", "no_show"].includes(a.status));
+  // Sort: upcoming ascending (next appointment first), past descending (most recent first)
+  const byStartAsc  = (a: DoctorAppointment, b: DoctorAppointment) =>
+    new Date(a.scheduled_start).getTime() - new Date(b.scheduled_start).getTime();
+  const byStartDesc = (a: DoctorAppointment, b: DoctorAppointment) =>
+    new Date(b.scheduled_start).getTime() - new Date(a.scheduled_start).getTime();
+
+  const pending  = appointments.filter((a) => a.status === "proposed").sort(byStartAsc);
+  const upcoming = appointments.filter((a) => ["scheduled", "in_progress"].includes(a.status)).sort(byStartAsc);
+  const past     = appointments.filter((a) => ["completed", "cancelled", "no_show"].includes(a.status)).sort(byStartDesc);
 
   return (
     <div className="p-4 sm:p-8 space-y-6 max-w-3xl">

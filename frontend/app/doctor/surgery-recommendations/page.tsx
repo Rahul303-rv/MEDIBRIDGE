@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { SurgeryPackage, DoctorAppointment } from "@/types/api";
+import DiscussionPanel from "@/components/discussion-panel";
 
 interface SurgeryRecommendation {
   id: number;
@@ -20,6 +21,7 @@ interface SurgeryRecommendation {
   created_at: string;
   booking_id: number | null;
   booking_status: string | null;
+  unread_for_doctor: number;
 }
 
 const BOOKING_STATUS: Record<string, { badge: string; label: string }> = {
@@ -59,6 +61,13 @@ export default function DoctorSurgeryRecommendationsPage() {
   const [packageId, setPackageId] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [openChatId, setOpenChatId] = useState<number | null>(null);
+
+  function markChatRead(recId: number) {
+    setRecommendations((prev) =>
+      prev.map((r) => (r.id === recId ? { ...r, unread_for_doctor: 0 } : r))
+    );
+  }
 
   useEffect(() => {
     if (searchParams.get("appointment")) setShowForm(true);
@@ -75,6 +84,16 @@ export default function DoctorSurgeryRecommendationsPage() {
       setPackages(pkgRes.data);
     }).catch(() => toast.error("Failed to load data."))
       .finally(() => setLoading(false));
+  }, []);
+
+  // Poll recommendations every 10s so unread message badges stay fresh
+  useEffect(() => {
+    const interval = setInterval(() => {
+      api.get("/api/v1/doctor/surgery-recommendations")
+        .then((res) => setRecommendations(res.data))
+        .catch(() => {/* silent — initial load handles errors */});
+    }, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   async function submit(e: React.FormEvent) {
@@ -263,10 +282,57 @@ export default function DoctorSurgeryRecommendationsPage() {
                         month: "short", day: "numeric", year: "numeric",
                       })}
                     </p>
-                    {r.booking_id && (
-                      <p className="text-xs text-emerald-600 font-semibold">Patient booked this surgery ✓</p>
-                    )}
+                    <div className="flex items-center gap-3">
+                      {r.booking_id && (
+                        <p className="text-xs text-emerald-600 font-semibold">Patient booked this surgery ✓</p>
+                      )}
+                      <button
+                        onClick={() => {
+                          const opening = openChatId !== r.id;
+                          setOpenChatId(opening ? r.id : null);
+                          if (opening && r.unread_for_doctor > 0) markChatRead(r.id);
+                        }}
+                        title={r.unread_for_doctor > 0
+                          ? `${r.unread_for_doctor} new message${r.unread_for_doctor > 1 ? "s" : ""} from admin`
+                          : "Open chat with admin team"
+                        }
+                        className={`relative inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold transition-colors ${
+                          openChatId === r.id
+                            ? "bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
+                            : r.unread_for_doctor > 0
+                              ? "bg-amber-500 text-white hover:bg-amber-600 shadow-sm"
+                              : "bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-700 hover:bg-teal-100 dark:hover:bg-teal-900/40"
+                        }`}
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        {openChatId === r.id
+                          ? "Close chat"
+                          : r.unread_for_doctor > 0
+                            ? `${r.unread_for_doctor} new message${r.unread_for_doctor > 1 ? "s" : ""}`
+                            : "Admin chat"
+                        }
+                        {r.unread_for_doctor > 0 && openChatId !== r.id && (
+                          <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-zinc-800">
+                            {r.unread_for_doctor > 9 ? "9+" : r.unread_for_doctor}
+                          </span>
+                        )}
+                      </button>
+                    </div>
                   </div>
+
+                  {openChatId === r.id && (
+                    <div className="pt-2">
+                      <DiscussionPanel
+                        viewerRole="doctor"
+                        endpoint={`/api/v1/doctor/surgery-recommendations/${r.id}/messages`}
+                        otherPartyName="Admin Team"
+                        onMessagesRead={() => markChatRead(r.id)}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             );

@@ -280,6 +280,7 @@ export interface SurgeryCoupon {
 
 export interface SurgeryBookingList {
   id: number;
+  package: number;
   package_name: string;
   hospital_name: string;
   surgery_type: string;

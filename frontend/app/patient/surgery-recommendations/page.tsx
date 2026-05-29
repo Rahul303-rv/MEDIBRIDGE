@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import api from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { usePolling } from "@/hooks/use-polling";
+import DiscussionPanel from "@/components/discussion-panel";
 
 interface SurgeryRecommendation {
   id: number;
@@ -22,6 +24,7 @@ interface SurgeryRecommendation {
   created_at: string;
   booking_id: number | null;
   booking_status: string | null;
+  unread_for_patient: number;
 }
 
 function roughPrice(priceUsd: string): string {
@@ -49,6 +52,13 @@ const BOOKING_STATUS_LABEL: Record<string, string> = {
 export default function PatientSurgeryRecommendationsPage() {
   const [recommendations, setRecommendations] = useState<SurgeryRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openChatId, setOpenChatId] = useState<number | null>(null);
+
+  function markChatRead(recId: number) {
+    setRecommendations((prev) =>
+      prev.map((r) => (r.id === recId ? { ...r, unread_for_patient: 0 } : r))
+    );
+  }
 
   useEffect(() => {
     api.get("/api/v1/patient/surgery-recommendations")
@@ -56,6 +66,13 @@ export default function PatientSurgeryRecommendationsPage() {
       .catch(() => toast.error("Failed to load recommendations."))
       .finally(() => setLoading(false));
   }, []);
+
+  // Auto-refresh so admin approval / booking status changes appear without reload
+  usePolling(() => {
+    api.get("/api/v1/patient/surgery-recommendations")
+      .then((res) => setRecommendations(res.data))
+      .catch(() => {/* silent */});
+  }, 10000);
 
   return (
     <main className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-4 sm:p-8">
@@ -153,33 +170,84 @@ export default function PatientSurgeryRecommendationsPage() {
                     )}
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between gap-3 pt-1">
+                    <div className="flex items-center justify-between gap-3 pt-1 flex-wrap">
                       <p className="text-xs text-zinc-400 dark:text-zinc-500">
                         {new Date(r.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                       </p>
-                      {isPending || isRejected ? (
-                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                          isPending
-                            ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
-                            : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
-                        }`}>
-                          {isPending ? "Pending Approval" : "Not Approved"}
-                        </span>
-                      ) : isBooked ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">✓ Booked</span>
-                          <Link href={`/patient/surgery-bookings/${r.booking_id}`}
-                            className="inline-flex items-center justify-center h-8 px-3 rounded-lg bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 transition-colors">
-                            View Booking →
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {/* Chat with Admin — WhatsApp-style unread badge */}
+                        <button
+                          onClick={() => {
+                            const opening = openChatId !== r.id;
+                            setOpenChatId(opening ? r.id : null);
+                            if (opening && r.unread_for_patient > 0) markChatRead(r.id);
+                          }}
+                          title={r.unread_for_patient > 0
+                            ? `${r.unread_for_patient} new message${r.unread_for_patient > 1 ? "s" : ""} from admin`
+                            : "Open chat with admin team"
+                          }
+                          className={`relative inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold transition-colors ${
+                            openChatId === r.id
+                              ? "bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
+                              : r.unread_for_patient > 0
+                                ? "bg-amber-500 text-white hover:bg-amber-600 shadow-sm"
+                                : "bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-700 hover:bg-teal-100 dark:hover:bg-teal-900/40"
+                          }`}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          {openChatId === r.id
+                            ? "Close chat"
+                            : r.unread_for_patient > 0
+                              ? `${r.unread_for_patient} new message${r.unread_for_patient > 1 ? "s" : ""}`
+                              : "Chat with Admin"
+                          }
+                          {r.unread_for_patient > 0 && openChatId !== r.id && (
+                            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-zinc-800">
+                              {r.unread_for_patient > 9 ? "9+" : r.unread_for_patient}
+                            </span>
+                          )}
+                        </button>
+
+                        {isPending || isRejected ? (
+                          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                            isPending
+                              ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                              : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+                          }`}>
+                            {isPending ? "Pending Approval" : "Not Approved"}
+                          </span>
+                        ) : isBooked ? (
+                          <>
+                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">✓ Booked</span>
+                            <Link href={`/patient/surgery-bookings/${r.booking_id}`}
+                              className="inline-flex items-center justify-center h-8 px-3 rounded-lg bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 transition-colors">
+                              View Booking →
+                            </Link>
+                          </>
+                        ) : (
+                          <Link href={`/patient/surgery-bookings/new/${r.package}`}
+                            className="inline-flex items-center justify-center h-9 px-4 rounded-lg bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 transition-colors">
+                            Book Now →
                           </Link>
-                        </div>
-                      ) : (
-                        <Link href={`/patient/surgery-bookings/new/${r.package}`}
-                          className="inline-flex items-center justify-center h-9 px-4 rounded-lg bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 transition-colors">
-                          Book Now →
-                        </Link>
-                      )}
+                        )}
+                      </div>
                     </div>
+
+                    {/* Inline chat panel */}
+                    {openChatId === r.id && (
+                      <div className="pt-2">
+                        <DiscussionPanel
+                          viewerRole="patient"
+                          endpoint={`/api/v1/patient/surgery-recommendations/${r.id}/messages`}
+                          otherPartyName="Admin Team"
+                          onMessagesRead={() => markChatRead(r.id)}
+                        />
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               );

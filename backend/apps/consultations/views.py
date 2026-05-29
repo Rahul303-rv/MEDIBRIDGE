@@ -126,14 +126,13 @@ def admin_intake_match(request, pk):
     doctor = serializer.validated_data["doctor_id"]
     notes = serializer.validated_data.get("admin_notes", "")
 
-    # Idempotency: if intake is already matched to the same doctor with an
-    # active proposed appointment, return without re-doing work (prevents
-    # double-click from cancelling+recreating the existing proposed appointment
-    # and resending notification emails).
-    if (intake.status == "matched"
-            and intake.matched_doctor_id == doctor.id
-            and Appointment.objects.filter(intake=intake, status="proposed").exists()):
+    # Idempotency: already matched to the same doctor, no re-work needed
+    if intake.status == "matched" and intake.matched_doctor_id == doctor.id:
         return Response(AdminIntakeSerializer(intake).data)
+
+    # Cancel any previously auto-created proposed appointments for this intake
+    # (handles legacy records and re-match scenarios)
+    Appointment.objects.filter(intake=intake, status="proposed").update(status="cancelled")
 
     intake.matched_doctor = doctor
     intake.matched_by = request.user
@@ -143,55 +142,37 @@ def admin_intake_match(request, pk):
         intake.admin_notes = notes
     intake.save()
 
-    # Cancel any previous proposed appointment for this intake (re-match case)
-    Appointment.objects.filter(intake=intake, status="proposed").update(status="cancelled")
-
-    # Auto-create a proposed appointment so the doctor sees this in their schedule
-    duration_min = doctor.consultation_duration_min or 30
-    start_dt = timezone.now() + timedelta(hours=48)
-    end_dt = start_dt + timedelta(minutes=duration_min)
-    appointment = Appointment.objects.create(
-        patient=intake.patient,
-        doctor=doctor,
-        intake=intake,
-        scheduled_start=start_dt,
-        scheduled_end=end_dt,
-        status="proposed",
-        meeting_link=f"https://meet.jit.si/medibridge-{secrets.token_hex(8)}",
-    )
-
     AuditLog.objects.create(
         actor=request.user,
         action="intake.matched",
         target_type="SymptomIntake",
         target_id=intake.id,
-        metadata={"doctor_id": doctor.id, "patient_email": intake.patient.user.email,
-                  "appointment_id": appointment.id},
+        metadata={"doctor_id": doctor.id, "patient_email": intake.patient.user.email},
         ip_address=request.META.get("REMOTE_ADDR"),
     )
 
-    # Notify patient
+    # Notify patient to book their slot with the matched doctor
     try:
         send_email(
             to_email=intake.patient.user.email,
             subject="Your consultation request has been matched",
             template_name="intake_matched",
-            context={"intake": intake, "doctor": doctor, "appointment": appointment},
+            context={"intake": intake, "doctor": doctor},
             context_type="SymptomIntake",
             context_id=intake.id,
         )
     except Exception:
         pass
 
-    # Notify doctor
+    # Notify doctor about the new patient intake
     try:
         send_email(
             to_email=doctor.user.email,
             subject="New patient assigned to you",
-            template_name="appointment_confirmed_doctor",
-            context={"appointment": appointment, "doctor": doctor, "patient": intake.patient},
-            context_type="Appointment",
-            context_id=appointment.id,
+            template_name="intake_matched_doctor",
+            context={"doctor": doctor, "patient": intake.patient, "intake": intake},
+            context_type="SymptomIntake",
+            context_id=intake.id,
         )
     except Exception:
         pass

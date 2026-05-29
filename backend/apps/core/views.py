@@ -24,7 +24,7 @@ def health(request):
 def admin_dashboard(request):
     from apps.consultations.models import Appointment, SymptomIntake
     from apps.doctors.models import DoctorProfile
-    from apps.surgery.models import SurgeryPackageBooking
+    from apps.surgery.models import SurgeryPackageBooking, SurgeryRecommendation
 
     today = timezone.now().date()
     seven_days_ago = timezone.now() - timedelta(days=7)
@@ -50,6 +50,8 @@ def admin_dashboard(request):
         total=Sum("doctor__consultation_fee_usd")
     )["total"] or 0
 
+    pending_surgery_recs = SurgeryRecommendation.objects.filter(status="pending_admin").count()
+
     return Response({
         "pending_intakes": pending_intakes,
         "appointments_today": appointments_today,
@@ -58,6 +60,7 @@ def admin_dashboard(request):
         "active_doctors": active_doctors,
         "confirmed_surgery_revenue_usd": float(surgery_revenue),
         "consultation_revenue_usd": float(consultation_revenue),
+        "pending_surgery_recs": pending_surgery_recs,
     })
 
 

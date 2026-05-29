@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { AdminSymptomIntake, DoctorProfile } from "@/types/api";
+import { usePolling } from "@/hooks/use-polling";
 
 const STATUS_TABS = ["all", "pending", "matched", "cancelled"] as const;
 type StatusTab = (typeof STATUS_TABS)[number];
@@ -63,6 +64,14 @@ export default function AdminIntakesPage() {
     loadIntakes(activeTab);
     api.get("/api/v1/public/doctors").then((res) => setDoctors(res.data)).catch(() => {});
   }, [activeTab]);
+
+  // Auto-refresh so new patient submissions appear without manual reload
+  usePolling(() => {
+    const query = activeTab !== "all" ? `?status=${activeTab}` : "";
+    api.get(`/api/v1/admin/symptom-intakes${query}`)
+      .then((res) => setIntakes(res.data))
+      .catch(() => {/* silent */});
+  }, 10000);
 
   async function submitMatch(intakeId: number) {
     if (!matchDoctor) { toast.error("Select a doctor first."); return; }

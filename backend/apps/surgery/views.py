@@ -9,9 +9,11 @@ from rest_framework.response import Response
 
 from apps.core.permissions import IsAdmin, IsDoctor, IsPatient
 
-from .models import PatientTravelInfo, SurgeryPackageBooking, SurgeryRecommendation, TravelDocument
+from .models import PatientTravelInfo, RecommendationMessage, SurgeryPackageBooking, SurgeryRecommendation, TravelDocument
 from .serializers import (
     AdminSurgeryRecommendationSerializer,
+    RecommendationMessageCreateSerializer,
+    RecommendationMessageSerializer,
     SurgeryBookingCreateSerializer,
     SurgeryBookingDetailSerializer,
     SurgeryBookingListSerializer,
@@ -486,3 +488,125 @@ def admin_surgery_recommendation_detail(request, pk):
         rec.save()
 
     return Response(AdminSurgeryRecommendationSerializer(rec).data)
+
+
+# ── Recommendation Discussions (two threads per rec: admin↔doctor, admin↔patient) ──
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAdmin])
+def admin_recommendation_messages(request, pk):
+    """
+    Admin endpoint. Use ?thread=doctor (default) or ?thread=patient.
+    GET marks the other party's messages as read by admin.
+    POST creates an admin message in the requested thread.
+    """
+    try:
+        rec = SurgeryRecommendation.objects.get(pk=pk)
+    except SurgeryRecommendation.DoesNotExist:
+        return _err("not_found", "Recommendation not found.", 404)
+
+    thread = request.query_params.get("thread", "doctor")
+    if thread not in ("doctor", "patient"):
+        return _err("invalid_thread", "thread must be 'doctor' or 'patient'.")
+
+    other_role = thread  # "doctor" or "patient" — the other participant in the thread
+
+    if request.method == "GET":
+        RecommendationMessage.objects.filter(
+            recommendation=rec, thread_type=thread,
+            sender_role=other_role, read_by_admin=False,
+        ).update(read_by_admin=True)
+        msgs = RecommendationMessage.objects.filter(
+            recommendation=rec, thread_type=thread,
+        ).select_related("sender")
+        return Response(RecommendationMessageSerializer(msgs, many=True).data)
+
+    ser = RecommendationMessageCreateSerializer(data=request.data)
+    ser.is_valid(raise_exception=True)
+    msg = RecommendationMessage.objects.create(
+        recommendation=rec,
+        thread_type=thread,
+        sender=request.user,
+        sender_role="admin",
+        body=ser.validated_data["body"],
+        read_by_admin=True,
+        read_by_doctor=(thread == "doctor"),   # only matters for the doctor thread
+        read_by_patient=(thread == "patient"), # only matters for the patient thread
+    )
+    # The recipient should NOT have the message marked read
+    if thread == "doctor":
+        msg.read_by_doctor = False
+    else:
+        msg.read_by_patient = False
+    msg.save(update_fields=["read_by_doctor", "read_by_patient"])
+    return Response(RecommendationMessageSerializer(msg).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsDoctor])
+def doctor_recommendation_messages(request, pk):
+    """Doctor sees ONLY the doctor↔admin thread for their own recommendation."""
+    doctor = request.user.doctor_profile
+    try:
+        rec = SurgeryRecommendation.objects.get(pk=pk, doctor=doctor)
+    except SurgeryRecommendation.DoesNotExist:
+        return _err("not_found", "Recommendation not found.", 404)
+
+    if request.method == "GET":
+        RecommendationMessage.objects.filter(
+            recommendation=rec, thread_type="doctor",
+            sender_role="admin", read_by_doctor=False,
+        ).update(read_by_doctor=True)
+        msgs = RecommendationMessage.objects.filter(
+            recommendation=rec, thread_type="doctor",
+        ).select_related("sender")
+        return Response(RecommendationMessageSerializer(msgs, many=True).data)
+
+    ser = RecommendationMessageCreateSerializer(data=request.data)
+    ser.is_valid(raise_exception=True)
+    msg = RecommendationMessage.objects.create(
+        recommendation=rec,
+        thread_type="doctor",
+        sender=request.user,
+        sender_role="doctor",
+        body=ser.validated_data["body"],
+        read_by_admin=False,
+        read_by_doctor=True,
+        read_by_patient=False,
+    )
+    return Response(RecommendationMessageSerializer(msg).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsPatient])
+def patient_recommendation_messages(request, pk):
+    """Patient sees ONLY the patient↔admin thread for their own recommendation."""
+    patient = request.user.patient_profile
+    try:
+        rec = SurgeryRecommendation.objects.get(pk=pk, patient=patient)
+    except SurgeryRecommendation.DoesNotExist:
+        return _err("not_found", "Recommendation not found.", 404)
+
+    if request.method == "GET":
+        RecommendationMessage.objects.filter(
+            recommendation=rec, thread_type="patient",
+            sender_role="admin", read_by_patient=False,
+        ).update(read_by_patient=True)
+        msgs = RecommendationMessage.objects.filter(
+            recommendation=rec, thread_type="patient",
+        ).select_related("sender")
+        return Response(RecommendationMessageSerializer(msgs, many=True).data)
+
+    ser = RecommendationMessageCreateSerializer(data=request.data)
+    ser.is_valid(raise_exception=True)
+    msg = RecommendationMessage.objects.create(
+        recommendation=rec,
+        thread_type="patient",
+        sender=request.user,
+        sender_role="patient",
+        body=ser.validated_data["body"],
+        read_by_admin=False,
+        read_by_doctor=False,
+        read_by_patient=True,
+    )
+    return Response(RecommendationMessageSerializer(msg).data, status=status.HTTP_201_CREATED)

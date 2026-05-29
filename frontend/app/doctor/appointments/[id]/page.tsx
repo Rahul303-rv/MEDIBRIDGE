@@ -407,7 +407,11 @@ export default function DoctorAppointmentDetailPage() {
             </div>
 
             {/* Patient medical profile — collapsible, auto-open for completed appointments */}
-            <PatientProfilePanel appointmentId={appt.id} defaultOpen={appt.status === "completed"} />
+            {/* Auto-expand for scheduled/in_progress/completed so doctor can review patient before consultation */}
+            <PatientProfilePanel
+              appointmentId={appt.id}
+              defaultOpen={["scheduled", "in_progress", "completed"].includes(appt.status)}
+            />
           </CardContent>
         </Card>
 

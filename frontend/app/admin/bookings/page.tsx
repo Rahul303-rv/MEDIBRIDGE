@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { usePolling } from "@/hooks/use-polling";
 
 interface AdminBooking {
   id: number;
@@ -72,6 +73,16 @@ export default function AdminBookingsPage() {
       .catch(() => toast.error("Failed to load bookings."))
       .finally(() => setLoading(false));
   }, [typeFilter, statusFilter]);
+
+  // Auto-refresh so new bookings / status updates appear without manual reload
+  usePolling(() => {
+    const params = new URLSearchParams();
+    if (typeFilter) params.set("type", typeFilter);
+    if (statusFilter) params.set("status", statusFilter);
+    api.get(`/api/v1/admin/bookings?${params}`)
+      .then((res) => setBookings(res.data))
+      .catch(() => {/* silent */});
+  }, 10000);
 
   function setParam(key: string, value: string) {
     const p = new URLSearchParams(searchParams.toString());

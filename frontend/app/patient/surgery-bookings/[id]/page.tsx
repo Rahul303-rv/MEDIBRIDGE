@@ -9,6 +9,7 @@ import { SurgeryBookingDetail } from "@/types/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import DiscussionPanel from "@/components/discussion-panel";
 
 interface Medicine {
   medicine_name: string;
@@ -71,12 +72,28 @@ export default function SurgeryBookingDetailPage() {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
 
+  // Floating chat with admin (uses the linked recommendation's chat thread)
+  const [unreadFromAdmin, setUnreadFromAdmin] = useState(0);
+  const [chatOpen, setChatOpen] = useState(false);
+
   useEffect(() => {
     api.get(`/api/v1/patient/surgery-bookings/${id}`)
       .then((res) => setBooking(res.data))
       .catch(() => toast.error("Failed to load booking."))
       .finally(() => setLoading(false));
   }, [id]);
+
+  // Fetch this patient's recommendations to get the unread message count for the matching package
+  useEffect(() => {
+    if (!booking?.package) return;
+    api.get("/api/v1/patient/surgery-recommendations")
+      .then((res) => {
+        const rec = (res.data as Array<{ package: number; unread_for_patient: number }>)
+          .find((r) => r.package === booking.package);
+        if (rec) setUnreadFromAdmin(rec.unread_for_patient ?? 0);
+      })
+      .catch(() => {/* silent — chat is optional */});
+  }, [booking?.package]);
 
   async function downloadVoucher() {
     setDownloading(true);
@@ -120,7 +137,7 @@ export default function SurgeryBookingDetailPage() {
         </div>
 
         {/* Package + Status */}
-        <Card className="border border-zinc-200 shadow-sm">
+        <Card className="border border-zinc-200 dark:border-zinc-700 shadow-sm">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-semibold">{booking.package_name}</CardTitle>
@@ -128,7 +145,7 @@ export default function SurgeryBookingDetailPage() {
             </div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">{booking.hospital_name} · {booking.hospital_city}</p>
             {rec && (
-              <p className="text-xs text-teal-700 font-medium mt-1">Recommended by {rec.doctor_name}</p>
+              <p className="text-xs text-teal-700 dark:text-teal-400 font-medium mt-1">Recommended by {rec.doctor_name}</p>
             )}
           </CardHeader>
           <CardContent className="space-y-4">
@@ -148,33 +165,33 @@ export default function SurgeryBookingDetailPage() {
               {booking.payment_ref && (
                 <div>
                   <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Payment Ref</p>
-                  <p className="text-zinc-700 mt-0.5 font-mono text-xs">{booking.payment_ref}</p>
+                  <p className="text-zinc-700 dark:text-zinc-200 mt-0.5 font-mono text-xs">{booking.payment_ref}</p>
                 </div>
               )}
             </div>
 
             {ti && (
               <div>
-                <p className="text-xs text-zinc-400 uppercase tracking-wide mb-2">Travel Information</p>
-                <div className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-3 text-sm space-y-1">
-                  <p><span className="text-zinc-400">Passport:</span> ****{ti.passport_number.slice(-4)} ({ti.passport_country})</p>
-                  <p><span className="text-zinc-400">Passport Expiry:</span> {ti.passport_expiry}</p>
-                  <p><span className="text-zinc-400">Visa Required:</span> {ti.visa_required ? "Yes" : "No"}</p>
-                  <p><span className="text-zinc-400">Occupation:</span> {ti.current_occupation}</p>
-                  {ti.employer && <p><span className="text-zinc-400">Employer:</span> {ti.employer}</p>}
-                  {ti.companion_count > 0 && <p><span className="text-zinc-400">Companions:</span> {ti.companion_count}</p>}
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-2">Travel Information</p>
+                <div className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-3 text-sm space-y-1 text-zinc-700 dark:text-zinc-200">
+                  <p><span className="text-zinc-400 dark:text-zinc-500">Passport:</span> ****{ti.passport_number.slice(-4)} ({ti.passport_country})</p>
+                  <p><span className="text-zinc-400 dark:text-zinc-500">Passport Expiry:</span> {ti.passport_expiry}</p>
+                  <p><span className="text-zinc-400 dark:text-zinc-500">Visa Required:</span> {ti.visa_required ? "Yes" : "No"}</p>
+                  <p><span className="text-zinc-400 dark:text-zinc-500">Occupation:</span> {ti.current_occupation}</p>
+                  {ti.employer && <p><span className="text-zinc-400 dark:text-zinc-500">Employer:</span> {ti.employer}</p>}
+                  {ti.companion_count > 0 && <p><span className="text-zinc-400 dark:text-zinc-500">Companions:</span> {ti.companion_count}</p>}
                 </div>
               </div>
             )}
 
             {booking.documents.length > 0 && (
               <div>
-                <p className="text-xs text-zinc-400 uppercase tracking-wide mb-2">Documents</p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-2">Documents</p>
                 <div className="space-y-1">
                   {booking.documents.map((doc) => (
                     <div key={doc.id} className="flex items-center justify-between bg-zinc-50 dark:bg-zinc-700 rounded-lg px-3 py-2">
                       <span className="text-sm text-zinc-700 dark:text-zinc-300 capitalize">{doc.doc_type.replace("_", " ")}</span>
-                      <span className={`text-xs ${doc.is_verified ? "text-emerald-600" : "text-zinc-400"}`}>
+                      <span className={`text-xs ${doc.is_verified ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-400 dark:text-zinc-500"}`}>
                         {doc.is_verified ? "Verified" : "Pending"}
                       </span>
                     </div>
@@ -237,7 +254,7 @@ export default function SurgeryBookingDetailPage() {
               {rec.notes && (
                 <div className="bg-white dark:bg-zinc-800 rounded-lg border border-teal-100 dark:border-teal-800 px-3 py-2">
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-0.5">Doctor&apos;s recommendation note</p>
-                  <p className="text-sm text-zinc-700">{rec.notes}</p>
+                  <p className="text-sm text-zinc-700 dark:text-zinc-200">{rec.notes}</p>
                 </div>
               )}
 
@@ -247,17 +264,17 @@ export default function SurgeryBookingDetailPage() {
                     <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-1">Diagnosis</p>
                     <p className="text-sm text-zinc-800 dark:text-zinc-200 font-medium">{rec.prescription.diagnosis}</p>
                     {rec.prescription.general_notes && (
-                      <p className="text-xs text-zinc-500 mt-1">{rec.prescription.general_notes}</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{rec.prescription.general_notes}</p>
                     )}
                   </div>
 
                   {rec.prescription.medicines.length > 0 && (
                     <div className="bg-white dark:bg-zinc-800 rounded-lg border border-teal-100 dark:border-teal-800 px-3 py-2">
-                      <p className="text-xs text-zinc-400 uppercase tracking-wide mb-2">Medicines Prescribed</p>
+                      <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-2">Medicines Prescribed</p>
                       <div className="overflow-x-auto">
                         <table className="w-full text-xs">
                           <thead>
-                            <tr className="text-zinc-400 border-b border-zinc-100">
+                            <tr className="text-zinc-500 dark:text-zinc-400 border-b border-zinc-100 dark:border-zinc-700">
                               <th className="text-left py-1 pr-3 font-medium">Medicine</th>
                               <th className="text-left py-1 pr-2 font-medium">Dosage</th>
                               <th className="text-center py-1 px-1 font-medium">M</th>
@@ -270,15 +287,15 @@ export default function SurgeryBookingDetailPage() {
                           </thead>
                           <tbody>
                             {rec.prescription.medicines.map((m, i) => (
-                              <tr key={i} className="border-b border-zinc-50">
-                                <td className="py-1 pr-3 text-zinc-800 font-medium">{m.medicine_name}</td>
-                                <td className="py-1 pr-2 text-zinc-600">{m.dosage}</td>
+                              <tr key={i} className="border-b border-zinc-50 dark:border-zinc-700">
+                                <td className="py-1 pr-3 text-zinc-800 dark:text-zinc-100 font-medium">{m.medicine_name}</td>
+                                <td className="py-1 pr-2 text-zinc-600 dark:text-zinc-300">{m.dosage}</td>
                                 <td className="py-1 px-1 text-center"><Tick val={m.morning} /></td>
                                 <td className="py-1 px-1 text-center"><Tick val={m.afternoon} /></td>
                                 <td className="py-1 px-1 text-center"><Tick val={m.evening} /></td>
                                 <td className="py-1 px-1 text-center"><Tick val={m.night} /></td>
-                                <td className="py-1 px-2 text-zinc-500 whitespace-nowrap">{MEAL_LABELS[m.meal_timing] ?? m.meal_timing}</td>
-                                <td className="py-1 px-1 text-center text-zinc-600">{m.duration_days}</td>
+                                <td className="py-1 px-2 text-zinc-500 dark:text-zinc-300 whitespace-nowrap">{MEAL_LABELS[m.meal_timing] ?? m.meal_timing}</td>
+                                <td className="py-1 px-1 text-center text-zinc-600 dark:text-zinc-300">{m.duration_days}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -315,6 +332,69 @@ export default function SurgeryBookingDetailPage() {
           </Card>
         )}
       </div>
+
+      {/* ── Floating Chat with Admin (fixed bottom-right, persists on scroll) ── */}
+      {booking.recommendation?.id && (
+        <>
+          {/* Floating pill button */}
+          <button
+            onClick={() => {
+              setChatOpen(true);
+              if (unreadFromAdmin > 0) setUnreadFromAdmin(0);
+            }}
+            title="Have a question? Chat with our admin team"
+            className="fixed bottom-6 right-6 z-40 flex items-center gap-2 h-12 px-5 rounded-full bg-teal-600 text-white shadow-lg hover:bg-teal-700 hover:shadow-xl transition-all"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span className="text-sm font-semibold">Chat with Admin</span>
+            {unreadFromAdmin > 0 && (
+              <span className="ml-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white">
+                {unreadFromAdmin > 9 ? "9+" : unreadFromAdmin}
+              </span>
+            )}
+          </button>
+
+          {/* Slide-in drawer */}
+          {chatOpen && (
+            <>
+              <div
+                className="fixed inset-0 bg-black/40 z-40 transition-opacity"
+                onClick={() => setChatOpen(false)}
+              />
+              <aside className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[420px] bg-zinc-50 dark:bg-zinc-900 shadow-2xl flex flex-col">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">{booking.package_name}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      Chat with the MediBridge admin team
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setChatOpen(false)}
+                    aria-label="Close chat"
+                    className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 shrink-0"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="flex-1 overflow-hidden p-3">
+                  <DiscussionPanel
+                    viewerRole="patient"
+                    endpoint={`/api/v1/patient/surgery-recommendations/${booking.recommendation.id}/messages`}
+                    otherPartyName="Admin Team"
+                    onMessagesRead={() => setUnreadFromAdmin(0)}
+                  />
+                </div>
+              </aside>
+            </>
+          )}
+        </>
+      )}
     </main>
   );
 }
