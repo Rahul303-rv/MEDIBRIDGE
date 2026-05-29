@@ -35,6 +35,8 @@ Demo credentials (all passwords: Test@1234):
 """
 
 import datetime
+import secrets
+
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
@@ -42,6 +44,12 @@ from apps.accounts.models import User
 from apps.patients.models import PatientProfile
 from apps.doctors.models import DoctorProfile, DoctorEducation, DoctorAvailabilitySlot, Specialization
 from apps.hospitals.models import Hospital, SurgeryPackage
+from apps.consultations.models import (
+    SymptomIntake, Appointment, Prescription, PrescriptionMedicine, PrescribedTest,
+)
+from apps.surgery.models import (
+    SurgeryRecommendation, SurgeryPackageBooking, RecommendationMessage,
+)
 
 
 PASSWORD = "Test@1234"
@@ -57,10 +65,18 @@ SPECIALIZATIONS = [
     {"name": "Ophthalmology",      "slug": "ophthalmology"},
     {"name": "Pulmonology",        "slug": "pulmonology"},
     {"name": "Urology",            "slug": "urology"},
+    {"name": "ENT",                "slug": "ent"},
     {"name": "ENT Surgery",        "slug": "ent-surgery"},
     {"name": "Neurosurgery",       "slug": "neurosurgery"},
     {"name": "Spine Surgery",      "slug": "spine-surgery"},
     {"name": "Transplant Surgery", "slug": "transplant-surgery"},
+    {"name": "Dermatology",        "slug": "dermatology"},
+    {"name": "Endocrinology",      "slug": "endocrinology"},
+    {"name": "Family Medicine",    "slug": "family-medicine"},
+    {"name": "Internal Medicine",  "slug": "internal-medicine"},
+    {"name": "Nephrology",         "slug": "nephrology"},
+    {"name": "Pediatrics",         "slug": "pediatrics"},
+    {"name": "Psychiatry",         "slug": "psychiatry"},
 ]
 
 DOCTORS = [
@@ -2078,6 +2094,13 @@ class Command(BaseCommand):
             action="store_true",
             help="Delete all existing seed data before re-creating.",
         )
+        parser.add_argument(
+            "--with-demo-workflow",
+            action="store_true",
+            help="Also seed a complete sample workflow (intake → match → consultation → "
+                 "prescription → surgery recommendation → admin approval → booking → chat). "
+                 "Useful for demos so dashboards aren't empty.",
+        )
 
     def handle(self, *args, **options):
         if options["flush"]:
@@ -2089,6 +2112,9 @@ class Command(BaseCommand):
         self._seed_patients()
         self._seed_doctors()
         self._seed_hospitals()
+
+        if options["with_demo_workflow"]:
+            self._seed_demo_workflow()
 
         self.stdout.write(self.style.SUCCESS("\nSeed complete.\n"))
         self._print_credentials()
@@ -2109,7 +2135,14 @@ class Command(BaseCommand):
             ["admin@test.local", "patient@test.local", "patient2@test.local"]
             + [d["email"] for d in DOCTORS]
         )
+        # User deletion CASCADEs through profiles, appointments, intakes, recs, messages, etc.
         User.objects.filter(email__in=emails).delete()
+
+        # SurgeryPackage.hospital uses PROTECT — clear ALL bookings + recommendations
+        # first (including any from non-seed real-signup users) so hospitals can be deleted.
+        # This is what "flush" implies — wipe workflow tables for a clean re-seed.
+        SurgeryPackageBooking.objects.all().delete()
+        SurgeryRecommendation.objects.all().delete()
         Hospital.objects.filter(name__in=[h["name"] for h in HOSPITALS]).delete()
         self.stdout.write("  Flushed.\n")
 
@@ -2266,6 +2299,195 @@ class Command(BaseCommand):
                 )
                 if pkg_created:
                     self.stdout.write(f"    + Package: {pkg['name']}")
+
+    # ------------------------------------------------------------------
+
+    def _seed_demo_workflow(self):
+        """Seed a realistic, end-to-end sample workflow so the demo dashboards aren't empty.
+
+        Creates:
+          • 1 PENDING intake from Sarah (severe knee pain) — admin can match it live
+          • 1 MATCHED intake from John (gynecology) → COMPLETED appointment → prescription written
+            → surgery recommended → admin APPROVED → patient BOOKED + paid → 2 chat messages
+          • 1 PENDING surgery recommendation (different patient + doctor) so admin sees something to approve
+        """
+        self.stdout.write("Seeding demo workflow data...")
+
+        admin    = User.objects.filter(role="admin").first()
+        sarah    = PatientProfile.objects.filter(user__email="patient@test.local").first()
+        john     = PatientProfile.objects.filter(user__email="patient2@test.local").first()
+        mishra   = DoctorProfile.objects.filter(user__email="dr.mishra@test.local").first()   # Gynecology
+        patel    = DoctorProfile.objects.filter(user__email="dr.patel@test.local").first()    # Orthopedics
+
+        if not all([admin, sarah, john, mishra, patel]):
+            self.stdout.write(self.style.WARNING(
+                "  Skipping workflow seed — missing one of admin/patients/doctors."
+            ))
+            return
+
+        # ── 1. Sarah's pending intake (admin will see this in /admin/intakes) ────
+        SymptomIntake.objects.get_or_create(
+            patient=sarah,
+            chief_complaint="Severe knee pain and difficulty walking",
+            defaults={
+                "symptoms": (
+                    "Sharp pain in right knee for 3 weeks. Worsens with stairs and "
+                    "prolonged standing. Audible clicking when bending. Visible swelling."
+                ),
+                "duration": "3 weeks",
+                "severity": "severe",
+                "existing_conditions_note": "Hypertension, on Amlodipine 5mg.",
+                "preferred_doctor": patel,
+                "status": "pending",
+            },
+        )
+        self.stdout.write(f"  + Pending intake from {sarah.user.email} (knee pain)")
+
+        # ── 2. John's full completed workflow (gynecology, but using a gender-neutral case) ──
+        intake_john, _ = SymptomIntake.objects.get_or_create(
+            patient=john,
+            chief_complaint="Recurring abdominal pain after meals",
+            defaults={
+                "symptoms": (
+                    "Pain in upper-right abdomen after eating, especially fatty meals. "
+                    "Started 6 weeks ago. Occasional nausea. Pain rates 6/10."
+                ),
+                "duration": "6 weeks",
+                "severity": "moderate",
+                "existing_conditions_note": "Type 2 Diabetes, on Metformin 500mg.",
+                "preferred_doctor": mishra,
+                "status": "matched",
+                "matched_doctor": mishra,
+                "matched_by": admin,
+                "matched_at": timezone.now() - datetime.timedelta(days=4),
+                "admin_notes": "Routed to Dr. Mishra for evaluation. Likely gallbladder-related.",
+            },
+        )
+        self.stdout.write(f"  + Matched intake from {john.user.email} (abdominal pain)")
+
+        # Completed appointment (3 days ago)
+        appt_start = timezone.now() - datetime.timedelta(days=3, hours=2)
+        appt, _ = Appointment.objects.get_or_create(
+            patient=john, doctor=mishra,
+            scheduled_start=appt_start,
+            defaults={
+                "intake": intake_john,
+                "scheduled_end": appt_start + datetime.timedelta(minutes=30),
+                "status": "completed",
+                "payment_ref": f"DUMMY-{secrets.token_hex(6).upper()}",
+                "meeting_link": f"https://meet.jit.si/medibridge-{secrets.token_hex(8)}",
+                "completed_at": appt_start + datetime.timedelta(minutes=28),
+                "notes": "Patient reports gallbladder-pattern pain. Recommended laparoscopic evaluation.",
+            },
+        )
+        self.stdout.write(f"  + Completed appointment #{appt.id}")
+
+        # Prescription with medicines + tests
+        rx, rx_created = Prescription.objects.get_or_create(
+            appointment=appt,
+            defaults={
+                "diagnosis": "Suspected symptomatic cholelithiasis (gallstones).",
+                "general_notes": "Avoid fatty meals. Stay hydrated. Return if pain worsens or fever develops.",
+                "follow_up_required": True,
+                "follow_up_after_days": 14,
+            },
+        )
+        if rx_created:
+            PrescriptionMedicine.objects.bulk_create([
+                PrescriptionMedicine(
+                    prescription=rx, medicine_name="Pantoprazole",
+                    dosage="40mg", morning=True, evening=False, night=False, afternoon=False,
+                    meal_timing="before_meal", duration_days=14,
+                    instructions="Take 30 min before breakfast.",
+                ),
+                PrescriptionMedicine(
+                    prescription=rx, medicine_name="Drotaverine",
+                    dosage="80mg", morning=True, afternoon=False, evening=True, night=False,
+                    meal_timing="after_meal", duration_days=7,
+                    instructions="Take only when pain occurs.",
+                ),
+            ])
+            PrescribedTest.objects.bulk_create([
+                PrescribedTest(
+                    prescription=rx, test_name="Abdominal Ultrasound", urgency="urgent",
+                    instructions="Confirm presence and size of gallstones.",
+                ),
+                PrescribedTest(
+                    prescription=rx, test_name="Liver Function Tests (LFT)", urgency="routine",
+                    instructions="Rule out bile duct involvement.",
+                ),
+            ])
+        self.stdout.write(f"  + Prescription with 2 medicines + 2 tests")
+
+        # Surgery recommendation — pick a gastroenterology package
+        from apps.hospitals.models import SurgeryPackage as Pkg
+        chole_pkg = Pkg.objects.filter(surgery_type__icontains="Gastro").first() \
+                 or Pkg.objects.filter(name__icontains="Cholecyst").first() \
+                 or Pkg.objects.first()
+        rec, rec_created = SurgeryRecommendation.objects.get_or_create(
+            doctor=mishra, patient=john, package=chole_pkg,
+            defaults={
+                "appointment": appt,
+                "status": "approved",
+                "notes": (
+                    "Ultrasound confirmed multiple cholesterol gallstones with thickened "
+                    "gallbladder wall. Symptomatic. Recommending laparoscopic cholecystectomy."
+                ),
+                "admin_notes": "Reviewed and approved. Patient may proceed with booking.",
+            },
+        )
+        self.stdout.write(f"  + Surgery recommendation: {chole_pkg.name} (APPROVED)")
+
+        # Confirmed booking for John
+        booking, _ = SurgeryPackageBooking.objects.get_or_create(
+            patient=john, package=chole_pkg,
+            defaults={
+                "status": "confirmed",
+                "tentative_date": (timezone.now() + datetime.timedelta(days=30)).date(),
+                "total_amount_usd": chole_pkg.price_usd,
+                "payment_ref": f"DUMMY-{secrets.token_hex(6).upper()}",
+            },
+        )
+        self.stdout.write(f"  + Surgery booking #{booking.id} CONFIRMED")
+
+        # Sample chat messages — admin↔doctor + admin↔patient (so unread badges show in demo)
+        if rec_created or not RecommendationMessage.objects.filter(recommendation=rec).exists():
+            RecommendationMessage.objects.create(
+                recommendation=rec, thread_type="doctor", sender=admin,
+                sender_role="admin",
+                body="Hi Dr. Mishra — could you confirm the ultrasound report shows multiple stones, not sludge?",
+                read_by_admin=True, read_by_doctor=False,
+            )
+            RecommendationMessage.objects.create(
+                recommendation=rec, thread_type="doctor", sender=mishra.user,
+                sender_role="doctor",
+                body="Yes, ultrasound clearly shows 3 stones, largest 1.2cm. Cholesterol composition. Surgery is indicated.",
+                read_by_admin=False, read_by_doctor=True,
+            )
+            RecommendationMessage.objects.create(
+                recommendation=rec, thread_type="patient", sender=john.user,
+                sender_role="patient",
+                body="What does the recovery time look like after this surgery?",
+                read_by_admin=False, read_by_patient=True,
+            )
+            self.stdout.write(f"  + 3 sample chat messages on rec #{rec.id}")
+
+        # ── 3. One more pending recommendation for the orthopedic doctor (different patient) ──
+        # so admin's "Pending Surgery Recs" KPI > 0 even after approving the first one
+        ortho_pkg = Pkg.objects.filter(surgery_type__icontains="Orthopedic").first() \
+                 or Pkg.objects.filter(name__icontains="Knee").first()
+        if ortho_pkg:
+            SurgeryRecommendation.objects.get_or_create(
+                doctor=patel, patient=sarah, package=ortho_pkg,
+                defaults={
+                    "status": "pending_admin",
+                    "notes": (
+                        "MRI confirms Grade III chondromalacia. Conservative therapy has failed. "
+                        "Recommending arthroscopic intervention."
+                    ),
+                },
+            )
+            self.stdout.write(f"  + Pending surgery recommendation: {ortho_pkg.name}")
 
     # ------------------------------------------------------------------
 
