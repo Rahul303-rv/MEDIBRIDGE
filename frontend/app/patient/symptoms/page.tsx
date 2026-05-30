@@ -138,11 +138,12 @@ export default function SymptomIntakePage() {
       toast.success("Your request has been submitted. Our team will review and match you to a doctor shortly.");
       router.push("/patient/symptoms/history");
     } catch (err: unknown) {
-      const status = axios.isAxiosError(err) ? err.response?.status : null;
+      const axiosErr = axios.isAxiosError(err) ? err : null;
+      const status = axiosErr?.response?.status ?? null;
       const isClientError = status && status >= 400 && status < 500;
       if (isClientError) {
         // Real validation error
-        const details = err.response?.data;
+        const details = axiosErr?.response?.data;
         if (details && typeof details === "object" && !("error" in details)) {
           Object.entries(details).forEach(([k, msgs]) =>
             form.setError(k as keyof FormValues, { message: (msgs as string[])[0] })
