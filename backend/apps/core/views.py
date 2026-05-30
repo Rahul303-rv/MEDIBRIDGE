@@ -290,3 +290,23 @@ def admin_set_user_password(request, user_id):
     user.set_password(new_password)
     user.save(update_fields=["password"])
     return Response({"message": "Password updated successfully."})
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAdmin])
+def admin_delete_user(request, user_id):
+    from apps.accounts.models import User
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return Response({"error": "User not found."}, status=404)
+
+    if user.role == "admin":
+        return Response({"error": "Cannot delete admin accounts."}, status=400)
+
+    if user == request.user:
+        return Response({"error": "Cannot delete your own account."}, status=400)
+
+    user.delete()
+    return Response({"message": "User deleted successfully."}, status=200)

@@ -12,4 +12,5 @@ admin_patterns = [
     path("users", views.admin_list_users),
     path("users/<int:user_id>", views.admin_user_detail),
     path("users/<int:user_id>/set-password", views.admin_set_user_password),
+    path("users/<int:user_id>/delete", views.admin_delete_user),
 ]

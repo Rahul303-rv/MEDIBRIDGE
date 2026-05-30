@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import api from "@/lib/api";
@@ -61,12 +61,15 @@ const textareaCls = "flex w-full rounded-lg border border-input bg-background px
 
 export default function AdminUserEditPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const [user, setUser] = useState<AdminUserDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<FormState>({});
   const [saving, setSaving] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [settingPw, setSettingPw] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     api.get(`/api/v1/admin/users/${id}`)
@@ -96,6 +99,20 @@ export default function AdminUserEditPage() {
       toast.error("Failed to save.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function deleteUser() {
+    setDeleting(true);
+    try {
+      await api.delete(`/api/v1/admin/users/${id}/delete`);
+      toast.success("User deleted successfully.");
+      router.push("/admin/users");
+    } catch {
+      toast.error("Failed to delete user.");
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
     }
   }
 
@@ -354,6 +371,52 @@ export default function AdminUserEditPage() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Delete User */}
+        {user.role !== "admin" && (
+          <Card className="border-red-200 dark:border-red-900">
+            <CardHeader>
+              <CardTitle className="text-base text-red-600">Delete User</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Permanently delete this user and all their data. This action cannot be undone.
+              </p>
+              {!confirmDelete ? (
+                <Button
+                  variant="outline"
+                  className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  Delete user
+                </Button>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-red-600">
+                    Are you sure? This will permanently delete <span className="underline">{user.email}</span> and all their data.
+                  </p>
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      className="text-red-600 border-red-300 hover:bg-red-50"
+                      onClick={deleteUser}
+                      disabled={deleting}
+                    >
+                      {deleting ? "Deleting…" : "Yes, delete permanently"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setConfirmDelete(false)}
+                      disabled={deleting}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
       </div>
     </main>
