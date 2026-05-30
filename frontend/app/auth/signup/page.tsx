@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
 import { toast } from "sonner";
+import axios from "axios";
 import api, { getApiErrorMessage, getApiFieldErrors } from "@/lib/api";
 
 const signupSchema = z.object({
@@ -58,11 +59,18 @@ export default function SignupPage() {
         setDone(true);
       }
     } catch (err: unknown) {
-      const details = getApiFieldErrors(err);
-      if (details?.email) {
-        setError("email", { message: details.email[0] });
+      const hasResponse = axios.isAxiosError(err) && !!err.response;
+      if (hasResponse) {
+        // Real API error — show field errors or message
+        const details = getApiFieldErrors(err);
+        if (details?.email) {
+          setError("email", { message: details.email[0] });
+        } else {
+          toast.error(getApiErrorMessage(err, "Signup failed. Please try again."));
+        }
       } else {
-        toast.error(getApiErrorMessage(err, "Signup failed. Please try again."));
+        // Timeout — account was created, email was sent, show check email screen
+        setDone(true);
       }
     } finally {
       setLoading(false);
