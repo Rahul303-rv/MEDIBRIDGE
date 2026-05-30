@@ -60,17 +60,17 @@ export default function SignupPage() {
       }
     } catch (err: unknown) {
       const status = axios.isAxiosError(err) ? err.response?.status : null;
-      const isClientError = status && status >= 400 && status < 500;
-      if (isClientError) {
-        // Real validation error (email exists, invalid data, etc.)
+      if (status === 400) {
         const details = getApiFieldErrors(err);
         if (details?.email) {
-          setError("email", { message: details.email[0] });
-        } else {
-          toast.error(getApiErrorMessage(err, "Signup failed. Please try again."));
+          // Email already exists — account may be unverified, send them to login
+          toast.success("An account with this email already exists. Please sign in or check your inbox for a verification email.");
+          router.push("/auth/login");
+          return;
         }
+        toast.error(getApiErrorMessage(err, "Signup failed. Please try again."));
       } else {
-        // 504 timeout or network error — account was created, show check email
+        // 502, 504, network error — account was likely created, show check email
         setDone(true);
       }
     } finally {
