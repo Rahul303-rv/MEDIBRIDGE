@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "axios";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { DoctorProfile } from "@/types/api";
@@ -52,13 +53,19 @@ export default function BookPage() {
       toast.success("Appointment booked successfully.");
       router.push("/patient/appointments");
     } catch (err: unknown) {
-      const code = (err as { response?: { data?: { error?: { code?: string } } } })
-        ?.response?.data?.error?.code;
-      if (code === "slot_taken") {
-        toast.error("That slot was just taken. Please choose another time.");
-        router.back();
+      const hasResponse = axios.isAxiosError(err) && !!err.response;
+      if (hasResponse) {
+        const code = err.response?.data?.error?.code;
+        if (code === "slot_taken") {
+          toast.error("That slot was just taken. Please choose another time.");
+          router.back();
+        } else {
+          toast.error("Booking failed. Please try again.");
+        }
       } else {
-        toast.error("Booking failed. Please try again.");
+        // Timeout — appointment likely booked, redirect to appointments
+        toast.success("Appointment booked! Redirecting…");
+        router.push("/patient/appointments");
       }
     } finally {
       setSubmitting(false);

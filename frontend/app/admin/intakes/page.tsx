@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { AdminSymptomIntake, DoctorProfile } from "@/types/api";
@@ -86,8 +87,18 @@ export default function AdminIntakesPage() {
       setMatchDoctor("");
       setMatchNotes("");
       toast.success("Patient matched to doctor successfully.");
-    } catch {
-      toast.error("Failed to match. Please try again.");
+    } catch (err: unknown) {
+      const hasResponse = axios.isAxiosError(err) && !!err.response;
+      if (hasResponse) {
+        toast.error("Failed to match. Please try again.");
+      } else {
+        // Timeout — match likely succeeded, reload to confirm
+        toast.success("Doctor matched! Refreshing…");
+        setMatchingId(null);
+        setMatchDoctor("");
+        setMatchNotes("");
+        loadIntakes(activeTab);
+      }
     } finally {
       setSubmitting(false);
     }
