@@ -73,15 +73,12 @@ WSGI_APPLICATION = "medibridge.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": config("DB_NAME", default="medibridge"),
-        "USER": config("DB_USER", default="root"),
+        "USER": config("DB_USER", default="postgres"),
         "PASSWORD": config("DB_PASSWORD", default=""),
-        "HOST": config("DB_HOST", default="127.0.0.1"),
-        "PORT": config("DB_PORT", default="3306"),
-        "OPTIONS": {
-            "charset": "utf8mb4",
-        },
+        "HOST": config("DB_HOST", default="localhost"),
+        "PORT": config("DB_PORT", default="5432"),
     }
 }
 
