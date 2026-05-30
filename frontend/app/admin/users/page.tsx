@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { usePolling } from "@/hooks/use-polling";
 
 interface AdminUser {
   id: number;
@@ -88,6 +89,17 @@ export default function AdminUsersPage() {
   }
 
   useEffect(() => { load(activeTab, query); }, [activeTab, query]);
+
+  // Auto-refresh so new signups appear without a manual page reload.
+  // Silent — does not toggle the loading skeleton.
+  usePolling(() => {
+    const params = new URLSearchParams();
+    if (activeTab !== "all") params.set("role", activeTab);
+    if (query) params.set("search", query);
+    api.get(`/api/v1/admin/users?${params}`)
+      .then((res) => setUsers(res.data))
+      .catch(() => {/* silent */});
+  }, 10000);
 
   function handleSearch() { setQuery(search); }
 
