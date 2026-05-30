@@ -72,28 +72,11 @@ def signup_patient(request):
     serializer.is_valid(raise_exception=True)
     user = serializer.save()
 
-    if settings.DEBUG:
-        # Auto-verify in dev so signups work without a real email inbox.
-        user.is_email_verified = True
-        user.save(update_fields=["is_email_verified"])
-        return Response(
-            {"message": "Account created. You can log in immediately (dev mode — email auto-verified)."},
-            status=status.HTTP_201_CREATED,
-        )
-
-    token_obj = EmailVerificationToken.objects.create(user=user)
-    verify_url = f"{settings.SITE_FRONTEND_URL}/auth/verify-email/{token_obj.token}"
-    send_email_async(
-        to_email=user.email,
-        subject="Verify your MediBridge account",
-        template_name="verification",
-        context={"user": user, "verify_url": verify_url},
-        context_type="user",
-        context_id=user.id,
-    )
-
+    # Auto-verify so users can log in immediately (no email-delivery dependency).
+    user.is_email_verified = True
+    user.save(update_fields=["is_email_verified"])
     return Response(
-        {"message": "Account created. Please check your email to verify your account."},
+        {"message": "Account created. You can log in immediately."},
         status=status.HTTP_201_CREATED,
     )
 
@@ -105,27 +88,11 @@ def signup_doctor(request):
     serializer.is_valid(raise_exception=True)
     user = serializer.save()
 
-    if settings.DEBUG:
-        user.is_email_verified = True
-        user.save(update_fields=["is_email_verified"])
-        return Response(
-            {"message": "Doctor account created. You can log in immediately (dev mode — email auto-verified)."},
-            status=status.HTTP_201_CREATED,
-        )
-
-    token_obj = EmailVerificationToken.objects.create(user=user)
-    verify_url = f"{settings.SITE_FRONTEND_URL}/auth/verify-email/{token_obj.token}"
-    send_email_async(
-        to_email=user.email,
-        subject="Verify your MediBridge doctor account",
-        template_name="verification",
-        context={"user": user, "verify_url": verify_url},
-        context_type="user",
-        context_id=user.id,
-    )
-
+    # Auto-verify so doctors can log in immediately (no email-delivery dependency).
+    user.is_email_verified = True
+    user.save(update_fields=["is_email_verified"])
     return Response(
-        {"message": "Doctor account created. Please verify your email before logging in."},
+        {"message": "Doctor account created. You can log in immediately."},
         status=status.HTTP_201_CREATED,
     )
 
