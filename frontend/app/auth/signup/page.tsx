@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -19,6 +20,7 @@ const signupSchema = z.object({
 type SignupForm = z.infer<typeof signupSchema>;
 
 export default function SignupPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -44,11 +46,17 @@ export default function SignupPage() {
   async function onSubmit(values: SignupForm) {
     setLoading(true);
     try {
-      await api.post("/api/v1/auth/signup/patient", {
+      const res = await api.post("/api/v1/auth/signup/patient", {
         email: values.email,
         password: values.password,
       });
-      setDone(true);
+      // Dev mode: backend auto-verifies, no email sent → go straight to login
+      if (res.data?.message?.includes("immediately")) {
+        toast.success("Account created! You can log in now.");
+        router.push("/auth/login");
+      } else {
+        setDone(true);
+      }
     } catch (err: unknown) {
       const details = getApiFieldErrors(err);
       if (details?.email) {

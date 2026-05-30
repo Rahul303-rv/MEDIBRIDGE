@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
+import axios from "axios";
 import api, { getApiErrorMessage } from "@/lib/api";
 
 const loginSchema = z.object({
@@ -22,6 +23,8 @@ export default function LoginPage() {
   const { setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [resendLoading, setResendLoading] = useState(false);
 
   const {
     register,
@@ -34,15 +37,33 @@ export default function LoginPage() {
 
   async function onSubmit(values: LoginForm) {
     setLoading(true);
+    setUnverifiedEmail(null);
     try {
       const res = await api.post("/api/v1/auth/login", values);
       setUser(res.data.user);
       const next = searchParams.get("next") || `/${res.data.user.role}`;
       router.push(next);
     } catch (err: unknown) {
-      toast.error(getApiErrorMessage(err, "Login failed. Please try again."));
+      if (axios.isAxiosError(err) && err.response?.data?.error?.code === "email_not_verified") {
+        setUnverifiedEmail(values.email);
+      } else {
+        toast.error(getApiErrorMessage(err, "Login failed. Please try again."));
+      }
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function resendVerification() {
+    if (!unverifiedEmail) return;
+    setResendLoading(true);
+    try {
+      await api.post("/api/v1/auth/resend-verification", { email: unverifiedEmail });
+      toast.success("Verification email resent — check your inbox and spam folder.");
+    } catch {
+      toast.error("Failed to resend. Please try again.");
+    } finally {
+      setResendLoading(false);
     }
   }
 
@@ -130,6 +151,22 @@ export default function LoginPage() {
             <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
           )}
         </div>
+
+        {/* Email not verified banner */}
+        {unverifiedEmail && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800 space-y-2">
+            <p className="font-semibold">Email not verified</p>
+            <p className="text-xs">Check your inbox (and spam folder) for the verification link sent to <span className="font-medium">{unverifiedEmail}</span>.</p>
+            <button
+              type="button"
+              onClick={resendVerification}
+              disabled={resendLoading}
+              className="text-xs font-semibold text-teal-700 hover:underline disabled:opacity-60"
+            >
+              {resendLoading ? "Sending…" : "Resend verification email"}
+            </button>
+          </div>
+        )}
 
         {/* Submit */}
         <button

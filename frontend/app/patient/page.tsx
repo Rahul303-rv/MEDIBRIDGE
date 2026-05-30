@@ -67,7 +67,7 @@ function ProfileField({ label, done }: { label: string; done: boolean }) {
           </svg>
         )}
       </div>
-      <span className={`text-xs ${done ? "text-zinc-500 dark:text-zinc-400 line-through" : "text-zinc-700 dark:text-zinc-200"}`}>{label}</span>
+      <span className={`text-xs ${done ? "text-zinc-500 dark:text-zinc-400 line-through" : "text-zinc-700 dark:text-amber-200"}`}>{label}</span>
     </div>
   );
 }
@@ -120,19 +120,19 @@ export default function PatientDashboard() {
       {!loading && profile && (
         <div className={`rounded-2xl border p-5 ${
           profile.is_complete
-            ? "bg-emerald-50 border-emerald-100"
-            : "bg-amber-50 border-amber-100"
+            ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-800"
+            : "bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-800"
         }`}>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-lg">{profile.is_complete ? "✅" : "📝"}</span>
-                <p className={`font-bold text-sm ${profile.is_complete ? "text-emerald-800" : "text-amber-800"}`}>
+                <p className={`font-bold text-sm ${profile.is_complete ? "text-emerald-800 dark:text-emerald-300" : "text-amber-800 dark:text-amber-300"}`}>
                   {profile.is_complete ? "Profile complete" : "Complete your profile"}
                 </p>
               </div>
               {!profile.is_complete && (
-                <p className="text-xs text-amber-700 mt-1 ml-7">
+                <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 ml-7">
                   Doctors need your complete profile to provide the best care.
                 </p>
               )}
