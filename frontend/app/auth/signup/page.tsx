@@ -59,9 +59,10 @@ export default function SignupPage() {
         setDone(true);
       }
     } catch (err: unknown) {
-      const hasResponse = axios.isAxiosError(err) && !!err.response;
-      if (hasResponse) {
-        // Real API error — show field errors or message
+      const status = axios.isAxiosError(err) ? err.response?.status : null;
+      const isClientError = status && status >= 400 && status < 500;
+      if (isClientError) {
+        // Real validation error (email exists, invalid data, etc.)
         const details = getApiFieldErrors(err);
         if (details?.email) {
           setError("email", { message: details.email[0] });
@@ -69,7 +70,7 @@ export default function SignupPage() {
           toast.error(getApiErrorMessage(err, "Signup failed. Please try again."));
         }
       } else {
-        // Timeout — account was created, email was sent, show check email screen
+        // 504 timeout or network error — account was created, show check email
         setDone(true);
       }
     } finally {

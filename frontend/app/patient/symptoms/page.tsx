@@ -138,9 +138,10 @@ export default function SymptomIntakePage() {
       toast.success("Your request has been submitted. Our team will review and match you to a doctor shortly.");
       router.push("/patient/symptoms/history");
     } catch (err: unknown) {
-      const hasResponse = axios.isAxiosError(err) && !!err.response;
-      if (hasResponse) {
-        // Real API error — show field errors or message
+      const status = axios.isAxiosError(err) ? err.response?.status : null;
+      const isClientError = status && status >= 400 && status < 500;
+      if (isClientError) {
+        // Real validation error
         const details = err.response?.data;
         if (details && typeof details === "object" && !("error" in details)) {
           Object.entries(details).forEach(([k, msgs]) =>
@@ -149,7 +150,7 @@ export default function SymptomIntakePage() {
         }
         toast.error("Failed to submit request. Please try again.");
       } else {
-        // Network timeout — server likely created the record, redirect to history
+        // 504 timeout or network error — server created the record
         toast.success("Request submitted! Redirecting to your requests…");
         router.push("/patient/symptoms/history");
       }

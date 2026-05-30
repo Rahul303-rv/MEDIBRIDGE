@@ -88,11 +88,12 @@ export default function AdminIntakesPage() {
       setMatchNotes("");
       toast.success("Patient matched to doctor successfully.");
     } catch (err: unknown) {
-      const hasResponse = axios.isAxiosError(err) && !!err.response;
-      if (hasResponse) {
+      const status = axios.isAxiosError(err) ? err.response?.status : null;
+      const isClientError = status && status >= 400 && status < 500;
+      if (isClientError) {
         toast.error("Failed to match. Please try again.");
       } else {
-        // Timeout — match likely succeeded, reload to confirm
+        // 504 timeout or network error — match likely succeeded
         toast.success("Doctor matched! Refreshing…");
         setMatchingId(null);
         setMatchDoctor("");

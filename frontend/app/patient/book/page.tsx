@@ -53,9 +53,10 @@ export default function BookPage() {
       toast.success("Appointment booked successfully.");
       router.push("/patient/appointments");
     } catch (err: unknown) {
-      const hasResponse = axios.isAxiosError(err) && !!err.response;
-      if (hasResponse) {
-        const code = err.response?.data?.error?.code;
+      const status = axios.isAxiosError(err) ? err.response?.status : null;
+      const isClientError = status && status >= 400 && status < 500;
+      if (isClientError) {
+        const code = (err as {response?: {data?: {error?: {code?: string}}}}).response?.data?.error?.code;
         if (code === "slot_taken") {
           toast.error("That slot was just taken. Please choose another time.");
           router.back();
