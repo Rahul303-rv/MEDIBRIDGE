@@ -1,9 +1,28 @@
+import threading
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from django.db import connection
 from django.template.loader import render_to_string
 from django.utils import timezone
 
 from .models import EmailNotification
+
+
+def send_email_async(**kwargs):
+    """Send an email in a background thread so the HTTP request returns
+    immediately. Prevents slow SMTP connections (e.g. Gmail on a free-tier
+    host) from blocking the response and causing 502 gateway errors.
+    """
+    def _worker():
+        try:
+            send_email(**kwargs)
+        finally:
+            # Each thread gets its own DB connection — close it to avoid leaks.
+            connection.close()
+
+    thread = threading.Thread(target=_worker, daemon=True)
+    thread.start()
 
 
 def send_email(

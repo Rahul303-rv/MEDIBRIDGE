@@ -9,7 +9,7 @@ from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
-from apps.notifications.services import send_email
+from apps.notifications.services import send_email_async
 from .models import EmailVerificationToken, PasswordResetToken, User
 from .serializers import (
     DoctorSignupSerializer,
@@ -83,7 +83,7 @@ def signup_patient(request):
 
     token_obj = EmailVerificationToken.objects.create(user=user)
     verify_url = f"{settings.SITE_FRONTEND_URL}/auth/verify-email/{token_obj.token}"
-    send_email(
+    send_email_async(
         to_email=user.email,
         subject="Verify your MediBridge account",
         template_name="verification",
@@ -115,7 +115,7 @@ def signup_doctor(request):
 
     token_obj = EmailVerificationToken.objects.create(user=user)
     verify_url = f"{settings.SITE_FRONTEND_URL}/auth/verify-email/{token_obj.token}"
-    send_email(
+    send_email_async(
         to_email=user.email,
         subject="Verify your MediBridge doctor account",
         template_name="verification",
@@ -253,7 +253,7 @@ def resend_verification(request):
 
     token_obj = EmailVerificationToken.objects.create(user=user)
     verify_url = f"{settings.SITE_FRONTEND_URL}/auth/verify-email/{token_obj.token}"
-    send_email(
+    send_email_async(
         to_email=user.email,
         subject="Verify your MediBridge account",
         template_name="verification",
@@ -276,7 +276,7 @@ def forgot_password(request):
         user = User.objects.get(email=serializer.validated_data["email"])
         token_obj = PasswordResetToken.objects.create(user=user)
         reset_url = f"{settings.SITE_FRONTEND_URL}/auth/reset-password/{token_obj.token}"
-        send_email(
+        send_email_async(
             to_email=user.email,
             subject="Reset your MediBridge password",
             template_name="password_reset",

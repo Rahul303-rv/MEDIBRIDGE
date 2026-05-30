@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
 import { toast } from "sonner";
-import axios from "axios";
 import api, { getApiErrorMessage, getApiFieldErrors } from "@/lib/api";
 
 const signupSchema = z.object({
@@ -59,20 +58,14 @@ export default function SignupPage() {
         setDone(true);
       }
     } catch (err: unknown) {
-      const status = axios.isAxiosError(err) ? err.response?.status : null;
-      if (status === 400) {
-        const details = getApiFieldErrors(err);
-        if (details?.email) {
-          // Email already exists — account may be unverified, send them to login
-          toast.success("An account with this email already exists. Please sign in or check your inbox for a verification email.");
-          router.push("/auth/login");
-          return;
-        }
-        toast.error(getApiErrorMessage(err, "Signup failed. Please try again."));
-      } else {
-        // 502, 504, network error — account was likely created, show check email
-        setDone(true);
+      const details = getApiFieldErrors(err);
+      if (details?.email) {
+        // Email already exists — likely an unverified account, guide to login
+        toast.success("An account with this email already exists. Please sign in, or check your inbox for the verification link.");
+        router.push("/auth/login");
+        return;
       }
+      toast.error(getApiErrorMessage(err, "Signup failed. Please try again."));
     } finally {
       setLoading(false);
     }
