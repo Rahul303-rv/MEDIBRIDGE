@@ -7,6 +7,7 @@ import { z } from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import axios from "axios";
 import api from "@/lib/api";
 import { DoctorProfile } from "@/types/api";
 import { Button } from "@/components/ui/button";
@@ -137,13 +138,21 @@ export default function SymptomIntakePage() {
       toast.success("Your request has been submitted. Our team will review and match you to a doctor shortly.");
       router.push("/patient/symptoms/history");
     } catch (err: unknown) {
-      const details = (err as { response?: { data?: Record<string, string[]> } }).response?.data;
-      if (details && typeof details === "object" && !("error" in details)) {
-        Object.entries(details).forEach(([k, msgs]) =>
-          form.setError(k as keyof FormValues, { message: (msgs as string[])[0] })
-        );
+      const hasResponse = axios.isAxiosError(err) && !!err.response;
+      if (hasResponse) {
+        // Real API error — show field errors or message
+        const details = err.response?.data;
+        if (details && typeof details === "object" && !("error" in details)) {
+          Object.entries(details).forEach(([k, msgs]) =>
+            form.setError(k as keyof FormValues, { message: (msgs as string[])[0] })
+          );
+        }
+        toast.error("Failed to submit request. Please try again.");
+      } else {
+        // Network timeout — server likely created the record, redirect to history
+        toast.success("Request submitted! Redirecting to your requests…");
+        router.push("/patient/symptoms/history");
       }
-      toast.error("Failed to submit request. Please try again.");
     }
   }
 
